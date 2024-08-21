@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->enum('status', ['Available', 'Pending', 'In Use', 'Maintenance', 'Denied']);
             $table->string('name_car');
-            $table->string('path');
+            $table->string('path')->nullable();
             $table->timestamps();
         }); 
     }

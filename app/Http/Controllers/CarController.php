@@ -6,6 +6,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Car;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class CarController extends Controller
 {
@@ -44,9 +46,40 @@ class CarController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-        //
+    public function create(Request $request)
+    {   
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|string|max:255',
+            'name_car' => 'required|string|max:255',
+            'path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi file gambar
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $Car = Car::create([
+            'status' => $request->status,
+            'name_car' => $request->name_car,
+        ]);
+      
+        if ($request->hasFile('path')) {
+            $image = $request->file('path');
+            $imageName = 'VA' . Str::random(40) . '.' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/profiles'), $imageName);
+            $imagePath = $imageName; // Store the image path
+        }
+    
+        // Update user with image path
+        $Car->update([
+            'path' => $imagePath,
+        ]);
+    
+        return response()->json([
+            'message' => 'User created successfully',
+        ], 200);
     }
 
     /**
@@ -76,16 +109,70 @@ class CarController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Car $car)
+    public function update(Request $request, $id)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|string|max:255',
+            'name_car' => 'required|string|max:255',
+            'path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi file gambar
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $Car = Car::findOrFail($id);
+
+
+        $Car->update([
+            'status' => $request->status,
+            'name_car' => $request->name_car,
+        ]);
+    
+        if ($request->hasFile('path')) {
+            if ($Car->path && file_exists(public_path('uploads/profiles/' . $Car->path))) {
+                unlink(public_path('uploads/profiles/' . $Car->path));
+            }
+    
+            $image = $request->file('path');
+            $imageName = 'VA' . Str::random(40) . '.' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/profiles'), $imageName);
+    
+            $Car->update([
+                'path' => $imageName,
+            ]);
+        }
+    
+        return response()->json([
+            'message' => 'Car updated successfully',
+        ], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Car $car)
+    public function destroy(Car $id)
     {
-        //
+        $Car = Car::findOrFail($id);
+
+        if (!$Car) {
+            return response()->json([
+                'message' => "Car Not Found"
+            ], 404);
+        }
+
+        // Delete image if exists
+        if ($Car->path && file_exists(public_path('uploads/profiles/' . $Car->path))) {
+            unlink(public_path('uploads/profiles/' . $Car->path));
+        }
+    
+        // Delete the car record
+        $Car->delete();
+    
+        return response()->json([
+            'message' => 'Car deleted successfully',
+        ], 200);
     }
 }

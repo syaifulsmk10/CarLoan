@@ -6,6 +6,7 @@ use App\Models\Applicant;
 use App\Models\Car;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class ApplicantController extends Controller
 {
@@ -74,7 +75,20 @@ class ApplicantController extends Controller
      */
     public function addApplicant(Request $request)
     {   
-        
+        $validator = Validator::make($request->all(), [
+        'car_id' => 'required|exists:cars,id',  // Memastikan car_id ada di tabel cars
+        'purpose' => 'required|string|max:255', // Validasi purpose sebagai string maksimal 255 karakter
+       'submission_date' => 'required|date_format:Y-m-d\TH:i:s',
+       'expiry_date' => 'required|date_format:Y-m-d\TH:i:s|after:submission_date',  // Memastikan expiry_date adalah tanggal valid dan setelah submission_date
+    ]);
+
+    // Jika validasi gagal, kembalikan respon error
+    if ($validator->fails()) {
+        return response()->json([
+            'errors' => $validator->errors()
+        ], 422);
+    }
+    
         $car = Car::where('id', $request->car_id)->first();
         if($car){
             if($car->status == 'Available' || $car->status == 'Pending'){
@@ -120,6 +134,19 @@ class ApplicantController extends Controller
      */
     public function updateApplicant(Request $request, $id)
     {
+         $validator = Validator::make($request->all(), [
+        'car_id' => 'sometimes|exists:cars,id',  // Memastikan car_id ada di tabel cars jika diisi
+        'purpose' => 'sometimes|string|max:255', // Validasi purpose sebagai string maksimal 255 karakter jika diisi
+        'submission_date' => 'sometimes|date_format:Y-m-d\TH:i:s', // Memastikan submission_date adalah format tanggal yang valid jika diisi
+        'expiry_date' => 'sometimes|date_format:Y-m-d\TH:i:s|after:submission_date', // Memastikan expiry_date adalah tanggal valid dan setelah submission_date jika diisi
+    ]);
+
+    // Jika validasi gagal, kembalikan respon error
+    if ($validator->fails()) {
+        return response()->json([
+            'errors' => $validator->errors()
+        ], 422);
+    }
 
         $applicant = Applicant::where('user_id', Auth::user()->id)->where('id', $id)->first();
 
@@ -193,7 +220,7 @@ class ApplicantController extends Controller
         }
 
         $Car = Car::find($applicant->car_id);
-        if ($applicant->status == "Belum_Disetujui") {
+        if ($applicant->status == "Belum Disetujui") {
             $applicant->delete();
            if($Car){
             $Car->update([

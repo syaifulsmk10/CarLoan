@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('car_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('purpose');
-            $table->date('submission_date');
-            $table->date('expiry_date');
+            $table->dateTime('submission_date');
+            $table->dateTime('expiry_date');
             $table->enum('status', ['Belum Disetujui', 'Disetujui', 'DiTolak']);
             $table->text('notes')->nullable();
             $table->dateTime('accepted_at')->nullable();

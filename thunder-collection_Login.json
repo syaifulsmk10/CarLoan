@@ -1,0 +1,412 @@
+{
+    "clientName": "Thunder Client",
+    "collectionName": "Login",
+    "collectionId": "db2b4791-44f6-495e-a9ef-8a3cbc80f54d",
+    "dateExported": "2024-08-21T04:02:28.723Z",
+    "version": "1.2",
+    "folders": [
+        {
+            "_id": "41b314fc-0567-4bab-9eba-2f25d5810e26",
+            "name": "Applicant",
+            "containerId": "",
+            "created": "2024-08-21T04:01:20.393Z",
+            "sortNum": 20000
+        },
+        {
+            "_id": "7c9d1972-c3ca-4ce2-9c39-065a7d876037",
+            "name": "Data-Applicant",
+            "containerId": "",
+            "created": "2024-08-21T04:01:53.274Z",
+            "sortNum": 30000
+        },
+        {
+            "_id": "6ed0a1db-bd00-4ac7-9ee1-89bdc09c3312",
+            "name": "User",
+            "containerId": "",
+            "created": "2024-08-21T04:02:10.047Z",
+            "sortNum": 40000
+        }
+    ],
+    "requests": [
+        {
+            "_id": "591aa482-73ac-4962-818f-24861a29d94a",
+            "colId": "db2b4791-44f6-495e-a9ef-8a3cbc80f54d",
+            "containerId": "",
+            "name": "login",
+            "url": "http://192.168.18.84:8000/api/login",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2024-08-16T02:35:48.775Z",
+            "modified": "2024-08-16T04:17:02.452Z",
+            "headers": [],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "email",
+                        "value": "admin@admin.com"
+                    },
+                    {
+                        "name": "password",
+                        "value": "admin_password"
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "d5c5e520-92c6-4c5b-84c1-7d366fca7bd5",
+            "colId": "db2b4791-44f6-495e-a9ef-8a3cbc80f54d",
+            "containerId": "41b314fc-0567-4bab-9eba-2f25d5810e26",
+            "name": "Index",
+            "url": "http://192.168.18.84:8000/api/Applicant?start_date=2024-08-1&end_date=2025-01-02",
+            "method": "GET",
+            "sortNum": 10000,
+            "created": "2024-08-21T04:01:30.679Z",
+            "modified": "2024-08-21T04:01:30.679Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "page",
+                    "value": "2",
+                    "isDisabled": true,
+                    "isPath": false
+                },
+                {
+                    "name": "per_page",
+                    "value": "1",
+                    "isDisabled": true,
+                    "isPath": false
+                },
+                {
+                    "name": "status",
+                    "value": "Belum Disetujui",
+                    "isDisabled": true,
+                    "isPath": false
+                },
+                {
+                    "name": "start_date",
+                    "value": "2024-08-1",
+                    "isPath": false
+                },
+                {
+                    "name": "end_date",
+                    "value": "2025-01-02",
+                    "isPath": false
+                }
+            ],
+            "auth": {
+                "type": "bearer",
+                "bearer": "1|yMp8igK8dqI0vsXkmo7ZZOrBH9VpuWnNxiB2RROfbbc9cbd2"
+            }
+        },
+        {
+            "_id": "f588423a-0395-4b21-954b-c47106e35c42",
+            "colId": "db2b4791-44f6-495e-a9ef-8a3cbc80f54d",
+            "containerId": "7c9d1972-c3ca-4ce2-9c39-065a7d876037",
+            "name": "Data-Applicant",
+            "url": "http://192.168.18.84:8000/api/data/applicants?start_date=2024-10-1&end_date=2025-01-11",
+            "method": "GET",
+            "sortNum": 10000,
+            "created": "2024-08-21T04:01:56.490Z",
+            "modified": "2024-08-21T04:01:56.490Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "status",
+                    "value": "Disetujui",
+                    "isDisabled": true,
+                    "isPath": false
+                },
+                {
+                    "name": "page",
+                    "value": "2",
+                    "isDisabled": true,
+                    "isPath": false
+                },
+                {
+                    "name": "per_page",
+                    "value": "1",
+                    "isDisabled": true,
+                    "isPath": false
+                },
+                {
+                    "name": "start_date",
+                    "value": "2024-10-1",
+                    "isPath": false
+                },
+                {
+                    "name": "end_date",
+                    "value": "2025-01-11",
+                    "isPath": false
+                }
+            ],
+            "auth": {
+                "type": "bearer",
+                "bearer": "1|yMp8igK8dqI0vsXkmo7ZZOrBH9VpuWnNxiB2RROfbbc9cbd2"
+            }
+        },
+        {
+            "_id": "fbfeebfe-7aa6-496c-984f-ac9dbd6dc416",
+            "colId": "db2b4791-44f6-495e-a9ef-8a3cbc80f54d",
+            "containerId": "6ed0a1db-bd00-4ac7-9ee1-89bdc09c3312",
+            "name": "Users",
+            "url": "http://192.168.18.84:8000/api/users",
+            "method": "GET",
+            "sortNum": 10000,
+            "created": "2024-08-21T04:02:12.876Z",
+            "modified": "2024-08-21T04:02:12.876Z",
+            "headers": []
+        },
+        {
+            "_id": "6e5bbf0e-4725-4a9a-a13f-65d373f399ee",
+            "colId": "db2b4791-44f6-495e-a9ef-8a3cbc80f54d",
+            "containerId": "41b314fc-0567-4bab-9eba-2f25d5810e26",
+            "name": "Update",
+            "url": "http://192.168.18.84:8000/api/Applicant/update/3",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2024-08-21T04:01:33.336Z",
+            "modified": "2024-08-21T04:01:33.336Z",
+            "headers": [],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "purpose",
+                        "value": "iya aja",
+                        "isDisabled": true
+                    },
+                    {
+                        "name": "car_id",
+                        "value": "2"
+                    },
+                    {
+                        "name": "submission_date",
+                        "value": "",
+                        "isDisabled": true
+                    },
+                    {
+                        "name": "expiry_date",
+                        "value": "",
+                        "isDisabled": true
+                    }
+                ]
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "1|yMp8igK8dqI0vsXkmo7ZZOrBH9VpuWnNxiB2RROfbbc9cbd2"
+            }
+        },
+        {
+            "_id": "0112b2e4-efba-4868-8baf-b227dcd80c95",
+            "colId": "db2b4791-44f6-495e-a9ef-8a3cbc80f54d",
+            "containerId": "7c9d1972-c3ca-4ce2-9c39-065a7d876037",
+            "name": "Accepted",
+            "url": "http://192.168.18.84:8000/api/Applicant/accepted/3",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2024-08-21T04:01:58.646Z",
+            "modified": "2024-08-21T04:01:58.646Z",
+            "headers": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "1|yMp8igK8dqI0vsXkmo7ZZOrBH9VpuWnNxiB2RROfbbc9cbd2"
+            }
+        },
+        {
+            "_id": "62542a38-ac96-4793-8ae1-db5229b7b949",
+            "colId": "db2b4791-44f6-495e-a9ef-8a3cbc80f54d",
+            "containerId": "6ed0a1db-bd00-4ac7-9ee1-89bdc09c3312",
+            "name": "Detail",
+            "url": "http://192.168.18.84:8000/api/users/detail/{id}",
+            "method": "GET",
+            "sortNum": 20000,
+            "created": "2024-08-21T04:02:14.920Z",
+            "modified": "2024-08-21T04:02:14.920Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "id",
+                    "value": "",
+                    "isPath": true
+                }
+            ]
+        },
+        {
+            "_id": "70897d8a-18ae-432d-953c-eea9b8a3a2cc",
+            "colId": "db2b4791-44f6-495e-a9ef-8a3cbc80f54d",
+            "containerId": "41b314fc-0567-4bab-9eba-2f25d5810e26",
+            "name": "Detail",
+            "url": "http://192.168.18.84:8000/api/Applicant/detail/{id}",
+            "method": "GET",
+            "sortNum": 30000,
+            "created": "2024-08-21T04:01:37.783Z",
+            "modified": "2024-08-21T04:01:37.784Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "id",
+                    "value": "",
+                    "isPath": true
+                }
+            ]
+        },
+        {
+            "_id": "801dfe72-2c63-41dd-a3a4-eab92f264d08",
+            "colId": "db2b4791-44f6-495e-a9ef-8a3cbc80f54d",
+            "containerId": "7c9d1972-c3ca-4ce2-9c39-065a7d876037",
+            "name": "Denied",
+            "url": "http://192.168.18.84:8000/api/data/Applicant/denied/{id}",
+            "method": "POST",
+            "sortNum": 30000,
+            "created": "2024-08-21T04:02:00.746Z",
+            "modified": "2024-08-21T04:02:00.746Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "id",
+                    "value": "",
+                    "isPath": true
+                }
+            ]
+        },
+        {
+            "_id": "dbebd4cd-7014-450f-932a-9b7ccbca571c",
+            "colId": "db2b4791-44f6-495e-a9ef-8a3cbc80f54d",
+            "containerId": "6ed0a1db-bd00-4ac7-9ee1-89bdc09c3312",
+            "name": "Create",
+            "url": "http://192.168.18.84:8000/api/users/create",
+            "method": "POST",
+            "sortNum": 30000,
+            "created": "2024-08-21T04:02:17.060Z",
+            "modified": "2024-08-21T04:02:17.060Z",
+            "headers": []
+        },
+        {
+            "_id": "3258444c-3bdd-4dcd-a8b6-931b54c61888",
+            "colId": "db2b4791-44f6-495e-a9ef-8a3cbc80f54d",
+            "containerId": "41b314fc-0567-4bab-9eba-2f25d5810e26",
+            "name": "Create",
+            "url": "http://192.168.18.84:8000/api/Applicant/create",
+            "method": "POST",
+            "sortNum": 40000,
+            "created": "2024-08-21T04:01:39.827Z",
+            "modified": "2024-08-21T04:01:39.827Z",
+            "headers": [],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "purpose",
+                        "value": "Oke gays"
+                    },
+                    {
+                        "name": "car_id",
+                        "value": "1"
+                    },
+                    {
+                        "name": "submission_date",
+                        "value": "2024-10-10"
+                    },
+                    {
+                        "name": "expiry_date",
+                        "value": "2024-11-11"
+                    }
+                ]
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "1|yMp8igK8dqI0vsXkmo7ZZOrBH9VpuWnNxiB2RROfbbc9cbd2"
+            }
+        },
+        {
+            "_id": "acea95eb-268a-40eb-b10f-8e2bed9c1d5c",
+            "colId": "db2b4791-44f6-495e-a9ef-8a3cbc80f54d",
+            "containerId": "7c9d1972-c3ca-4ce2-9c39-065a7d876037",
+            "name": "Detail",
+            "url": "http://192.168.18.84:8000/api/data/applicants/{id}",
+            "method": "GET",
+            "sortNum": 40000,
+            "created": "2024-08-21T04:02:02.207Z",
+            "modified": "2024-08-21T04:02:02.207Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "id",
+                    "value": "",
+                    "isPath": true
+                }
+            ]
+        },
+        {
+            "_id": "56e457fa-7ff8-432d-aa62-beda2b8405a4",
+            "colId": "db2b4791-44f6-495e-a9ef-8a3cbc80f54d",
+            "containerId": "6ed0a1db-bd00-4ac7-9ee1-89bdc09c3312",
+            "name": "Update",
+            "url": "http://192.168.18.84:8000/api/users/update/{id}",
+            "method": "POST",
+            "sortNum": 40000,
+            "created": "2024-08-21T04:02:21.281Z",
+            "modified": "2024-08-21T04:02:21.281Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "id",
+                    "value": "",
+                    "isPath": true
+                }
+            ]
+        },
+        {
+            "_id": "d453c896-f53c-462c-bac8-c37a0626689d",
+            "colId": "db2b4791-44f6-495e-a9ef-8a3cbc80f54d",
+            "containerId": "41b314fc-0567-4bab-9eba-2f25d5810e26",
+            "name": "Delete",
+            "url": "http://192.168.18.84:8000/api/Applicant/delete/6",
+            "method": "DELETE",
+            "sortNum": 50000,
+            "created": "2024-08-21T04:01:41.503Z",
+            "modified": "2024-08-21T04:01:41.503Z",
+            "headers": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "1|yMp8igK8dqI0vsXkmo7ZZOrBH9VpuWnNxiB2RROfbbc9cbd2"
+            }
+        },
+        {
+            "_id": "9ba78c45-7ab1-424e-bb06-ee9ab5379543",
+            "colId": "db2b4791-44f6-495e-a9ef-8a3cbc80f54d",
+            "containerId": "6ed0a1db-bd00-4ac7-9ee1-89bdc09c3312",
+            "name": "Get-Input",
+            "url": "http://192.168.18.84:8000/api/users",
+            "method": "GET",
+            "sortNum": 50000,
+            "created": "2024-08-21T04:02:23.568Z",
+            "modified": "2024-08-21T04:02:23.568Z",
+            "headers": []
+        },
+        {
+            "_id": "80819a99-e6cd-4ca3-9f0b-cc1dd0d5a4d4",
+            "colId": "db2b4791-44f6-495e-a9ef-8a3cbc80f54d",
+            "containerId": "6ed0a1db-bd00-4ac7-9ee1-89bdc09c3312",
+            "name": "Delete",
+            "url": "http://192.168.18.84:8000/api/users/delete/{id}",
+            "method": "DELETE",
+            "sortNum": 60000,
+            "created": "2024-08-21T04:02:25.480Z",
+            "modified": "2024-08-21T04:02:25.480Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "id",
+                    "value": "",
+                    "isPath": true
+                }
+            ]
+        }
+    ],
+    "ref": "ASbzHJgOTfir201ulvtwJ4TvsO2ml4G1Q9zTFTfAYlxxrUzZqtJ3E-DR5hETrBAhGFcmbiC2LXCYMgIQBXZoAQ"
+}

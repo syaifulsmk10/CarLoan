@@ -1,11 +1,13 @@
 <?php
 
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\DataApplicantController;
+use App\Http\Controllers\ApplicantAdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,14 +35,14 @@ Route::get('/users/detail/{id}', [UserController::class, 'getUser']); //detail &
 Route::post('/users/create', [UserController::class, 'addUser']); //done
 Route::post('/users/update/{id}', [UserController::class, 'updateUser']); //done
 // Route::get('/users/input/{id}', [UserController::class, 'getinput']); //done
-Route::delete('/users/delete/{id}', [UserController::class, 'deleteUser']); //done
+Route::delete('/users/delete/{id}', [UserController::class, 'destroy']); //done
 
 //Car
 
 Route::get('/car', [CarController::class, 'getCar']); 
-// Route::post('/car', [CarController::class, 'addCar']);
-// Route::post('/car/{id}', [CarController::class, 'updateCar']);
-// Route::delete('/car/{id}', [CarController::class, 'deleteCar']);
+Route::post('/car', [CarController::class, 'create']);
+Route::post('/car/{id}', [CarController::class, 'update']);
+Route::delete('/car/{id}', [CarController::class, 'deleteCar']);
 
 //Applicant
 
@@ -56,6 +58,7 @@ Route::get('/data/applicants', [DataApplicantController::class, 'index'])->name(
 Route::post('/Applicant/accepted/{id}', [DataApplicantController::class, 'accepted'])->name('accepted'); //done
 Route::post('/Applicant/denied/{id}', [DataApplicantController::class, 'denied'])->name('denied'); //done
 Route::get('/data/applicants/{id}', [DataApplicantController::class, 'detailApplicant'])->name('detailApplicant'); //done
+
 
 
 
