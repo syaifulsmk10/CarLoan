@@ -35,7 +35,7 @@ Route::get('/users/detail/{id}', [UserController::class, 'getUser']); //detail &
 Route::post('/users/create', [UserController::class, 'addUser']); //done
 Route::post('/users/update/{id}', [UserController::class, 'updateUser']); //done
 // Route::get('/users/input/{id}', [UserController::class, 'getinput']); //done
-Route::delete('/users/delete/{id}', [UserController::class, 'destroy']); //done
+Route::delete('/users/delete/{id}', [UserController::class, 'deleteUser']); //done
 
 //Car
 

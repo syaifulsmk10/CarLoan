@@ -15,7 +15,8 @@ class ApplicantController extends Controller
      */
     public function index(Request $request)
     {
-        $applicantQuery = Applicant::where('user_id', Auth::user()->id);
+        if(Auth::user()->role->id == 2){
+            $applicantQuery = Applicant::where('user_id', Auth::user()->id);
 
     if ($request->has('status')) {
         $status = $request->input('status');
@@ -67,6 +68,8 @@ class ApplicantController extends Controller
 
         ], 200);
 
+        }
+        
 
     }
 
@@ -75,45 +78,50 @@ class ApplicantController extends Controller
      */
     public function addApplicant(Request $request)
     {   
-        $validator = Validator::make($request->all(), [
-        'car_id' => 'required|exists:cars,id',  // Memastikan car_id ada di tabel cars
-        'purpose' => 'required|string|max:255', // Validasi purpose sebagai string maksimal 255 karakter
-       'submission_date' => 'required|date_format:Y-m-d\TH:i:s',
-       'expiry_date' => 'required|date_format:Y-m-d\TH:i:s|after:submission_date',  // Memastikan expiry_date adalah tanggal valid dan setelah submission_date
-    ]);
 
-    // Jika validasi gagal, kembalikan respon error
-    if ($validator->fails()) {
-        return response()->json([
-            'errors' => $validator->errors()
-        ], 422);
-    }
-    
-        $car = Car::where('id', $request->car_id)->first();
-        if($car){
-            if($car->status == 'Available' || $car->status == 'Pending'){
-                $applicant = Applicant::create([
-                    'user_id' => Auth::user()->id,
-                    'car_id' => $request->car_id,
-                    'purpose' => $request->purpose,
-                    'submission_date' => $request->submission_date,
-                    'expiry_date' => $request->expiry_date,
-                    'status' => "Belum Disetujui"
-                ]);
+
+        if(Auth::user()->role->id == 2){
+            $validator = Validator::make($request->all(), [
+                'car_id' => 'required|exists:cars,id',  // Memastikan car_id ada di tabel cars
+                'purpose' => 'required|string|max:255', // Validasi purpose sebagai string maksimal 255 karakter
+               'submission_date' => 'required|date_format:Y-m-d\TH:i:s',
+               'expiry_date' => 'required|date_format:Y-m-d\TH:i:s|after:submission_date',  // Memastikan expiry_date adalah tanggal valid dan setelah submission_date
+            ]);
         
-                $car->status = 'Pending';
-                $car->save();
-        
+            // Jika validasi gagal, kembalikan respon error
+            if ($validator->fails()) {
                 return response()->json([
-                    'message' => "create applicant sucessfulluy"
-                ]);
-            }else{
-                return response()->json([
-                    'message' => "create applicant failed"
-                ]);
+                    'errors' => $validator->errors()
+                ], 422);
             }
+            
+                $car = Car::where('id', $request->car_id)->first();
+                if($car){
+                    if($car->status == 'Available' || $car->status == 'Pending'){
+                        $applicant = Applicant::create([
+                            'user_id' => Auth::user()->id,
+                            'car_id' => $request->car_id,
+                            'purpose' => $request->purpose,
+                            'submission_date' => $request->submission_date,
+                            'expiry_date' => $request->expiry_date,
+                            'status' => "Belum Disetujui"
+                        ]);
+                
+                        $car->status = 'Pending';
+                        $car->save();
+                
+                        return response()->json([
+                            'message' => "create applicant sucessfulluy"
+                        ]);
+                    }else{
+                        return response()->json([
+                            'message' => "create applicant failed"
+                        ]);
+                    }
+                }
+        
         }
-
+      
        
     }
 
@@ -133,68 +141,72 @@ class ApplicantController extends Controller
      * Show the form for editing the specified resource.
      */
     public function updateApplicant(Request $request, $id)
-    {
-         $validator = Validator::make($request->all(), [
-        'car_id' => 'sometimes|exists:cars,id',  // Memastikan car_id ada di tabel cars jika diisi
-        'purpose' => 'sometimes|string|max:255', // Validasi purpose sebagai string maksimal 255 karakter jika diisi
-        'submission_date' => 'sometimes|date_format:Y-m-d\TH:i:s', // Memastikan submission_date adalah format tanggal yang valid jika diisi
-        'expiry_date' => 'sometimes|date_format:Y-m-d\TH:i:s|after:submission_date', // Memastikan expiry_date adalah tanggal valid dan setelah submission_date jika diisi
-    ]);
+    {   
 
-    // Jika validasi gagal, kembalikan respon error
-    if ($validator->fails()) {
-        return response()->json([
-            'errors' => $validator->errors()
-        ], 422);
-    }
-
-        $applicant = Applicant::where('user_id', Auth::user()->id)->where('id', $id)->first();
-
-        if (!$applicant) {
-            return response()->json([
-                'message' => 'Applicant not found.'
-            ], 404);
-        }
-        $oldCar = Car::find($applicant->car_id);
-        $newCar = Car::where('id', $request->car_id)->whereIn('status', ['Available', 'Pending'])->first();
-    
-        if ($applicant->status == "Belum Disetujui" && ($newCar->status == 'Available' || $oldCar->status == 'Pending')) {
-            if ($request->has('car_id')) {
-                if (!$newCar) {
-                    return response()->json(['message' => 'New car status invalid.'], 400);
+        if(Auth::user()->role->id == 2){
+            $validator = Validator::make($request->all(), [
+                'car_id' => 'sometimes|exists:cars,id',  // Memastikan car_id ada di tabel cars jika diisi
+                'purpose' => 'sometimes|string|max:255', // Validasi purpose sebagai string maksimal 255 karakter jika diisi
+                'submission_date' => 'sometimes|date_format:Y-m-d\TH:i:s', // Memastikan submission_date adalah format tanggal yang valid jika diisi
+                'expiry_date' => 'sometimes|date_format:Y-m-d\TH:i:s|after:submission_date', // Memastikan expiry_date adalah tanggal valid dan setelah submission_date jika diisi
+            ]);
+        
+            // Jika validasi gagal, kembalikan respon error
+            if ($validator->fails()) {
+                return response()->json([
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+        
+                $applicant = Applicant::where('user_id', Auth::user()->id)->where('id', $id)->first();
+        
+                if (!$applicant) {
+                    return response()->json([
+                        'message' => 'Applicant not found.'
+                    ], 404);
                 }
-                if ($applicant->car_id == $request->car_id) {
-                    $newCar->status = 'Pending';
-                    $newCar->save();
-                } else {
-                    $newCar->status = 'Pending';
-                    $newCar->save();
-                    if ($oldCar) {
-                        $oldCar->status = 'Available';
-                        $oldCar->save();
+                $oldCar = Car::find($applicant->car_id);
+                $newCar = Car::where('id', $request->car_id)->whereIn('status', ['Available', 'Pending'])->first();
+            
+                if ($applicant->status == "Belum Disetujui" && ($newCar->status == 'Available' || $oldCar->status == 'Pending')) {
+                    if ($request->has('car_id')) {
+                        if (!$newCar) {
+                            return response()->json(['message' => 'New car status invalid.'], 400);
+                        }
+                        if ($applicant->car_id == $request->car_id) {
+                            $newCar->status = 'Pending';
+                            $newCar->save();
+                        } else {
+                            $newCar->status = 'Pending';
+                            $newCar->save();
+                            if ($oldCar) {
+                                $oldCar->status = 'Available';
+                                $oldCar->save();
+                            }
+                            $applicant->car_id = $request->car_id;
+                        }
                     }
-                    $applicant->car_id = $request->car_id;
+                    if ($request->has('purpose')) {
+                        $applicant->purpose = $request->purpose;
+                    }
+            
+                    if ($request->has('submission_date')) {
+                        $applicant->submission_date = $request->submission_date;
+                    }
+            
+                    if ($request->has('expiry_date')) {
+                        $applicant->expiry_date = $request->expiry_date;
+                    }
+                    $applicant->save();
+            
+                    return response()->json(['message' => 'Applicant updated successfully.']);
+                } else {
+                    return response()->json([
+                        'message' => 'Applicant cannot be updated.'
+                    ], 400);
                 }
-            }
-            if ($request->has('purpose')) {
-                $applicant->purpose = $request->purpose;
-            }
-    
-            if ($request->has('submission_date')) {
-                $applicant->submission_date = $request->submission_date;
-            }
-    
-            if ($request->has('expiry_date')) {
-                $applicant->expiry_date = $request->expiry_date;
-            }
-            $applicant->save();
-    
-            return response()->json(['message' => 'Applicant updated successfully.']);
-        } else {
-            return response()->json([
-                'message' => 'Applicant cannot be updated.'
-            ], 400);
         }
+       
     }
     
 
@@ -211,73 +223,77 @@ class ApplicantController extends Controller
      */
     public function deleteApplicant(Applicant $applicant, $id)
     {
-        $applicant = Applicant::where('id', $id)->where('user_id', Auth::user()->id)->first();
+        if(Auth::user()->role->id == 2){
+            $applicant = Applicant::where('id', $id)->where('user_id', Auth::user()->id)->first();
        
-        if (!$applicant || $applicant->delete_user != null) {
-            return response()->json([
-                'message' => 'Applicant not found.'
-            ], 404);
+            if (!$applicant || $applicant->delete_user != null) {
+                return response()->json([
+                    'message' => 'Applicant not found.'
+                ], 404);
+            }
+    
+            $Car = Car::find($applicant->car_id);
+            if ($applicant->status == "Belum Disetujui") {
+                $applicant->delete();
+               if($Car){
+                $Car->update([
+                    'status' => "Available",
+                ]);
+               }
+                return response()->json([
+                    "message" =>  "Applicant Delete successfully",
+                ]);
+    
+            }else {
+                return response()->json([
+                    "message" =>  "Applicant Delete Denied",
+                ]);
+            }
+    
         }
-
-        $Car = Car::find($applicant->car_id);
-        if ($applicant->status == "Belum Disetujui") {
-            $applicant->delete();
-           if($Car){
-            $Car->update([
-                'status' => "Available",
-            ]);
-           }
-            return response()->json([
-                "message" =>  "Applicant Delete successfully",
-            ]);
-
-        }else {
-            return response()->json([
-                "message" =>  "Applicant Delete Denied",
-            ]);
-        }
-
-    }
-
-    
-
-    public function detail($id){
-        // Temukan pelamar dengan ID dan pastikan pelamar milik pengguna yang sedang login
-        $applicant = Applicant::with(['user', 'car'])
-            ->where('id', $id)
-            ->where('user_id', Auth::user()->id)
-            ->first();
-    
-        // Periksa apakah pelamar ditemukan
-        if (!$applicant) {
-            return response()->json([
-                'message' => "Applicant Not Found"
-            ], 404);
-        }
-    
-        // Format data pelamar
-        $dataApplicant = [
-            'id' => $applicant->id,
-            'user_id' => $applicant->user_id,  
-            'name' => $applicant->user->FirstName . ' ' . $applicant->user->LastName, 
-            'email' => $applicant->user->email,
-            'car' => [
-                'id' => $applicant->car->id,
-                'name' => $applicant->car->name_car,
-                'status_name' => $applicant->car->status,
-                'path' => $applicant->car->path ? env('APP_URL') . 'uploads/profiles/' . $applicant->car->path : null,
-            ],
-            'path' => $applicant->user->path ? env('APP_URL') . 'uploads/profiles/' . $applicant->user->path : null,  
-            'purpose' => $applicant->purpose,
-            'submission_date' => $applicant->submission_date,
-            'expiry_date' => $applicant->expiry_date,
-            'status' => $applicant->status,
-            'notes' => $applicant->notes,
-        ];
-    
-        return response()->json([
-            'dataApplicant' => $dataApplicant
-        ], 200);
     }
     
-}
+        
+    
+        public function detail($id){
+            // Temukan pelamar dengan ID dan pastikan pelamar milik pengguna yang sedang login
+            if(Auth::user()->role->id == 2){
+                $applicant = Applicant::with(['user', 'car'])
+                ->where('id', $id)
+                ->where('user_id', Auth::user()->id)
+                ->first();
+        
+            // Periksa apakah pelamar ditemukan
+            if (!$applicant) {
+                return response()->json([
+                    'message' => "Applicant Not Found"
+                ], 404);
+            }
+        
+            // Format data pelamar
+            $dataApplicant = [
+                'id' => $applicant->id,
+                'user_id' => $applicant->user_id,  
+                'name' => $applicant->user->FirstName . ' ' . $applicant->user->LastName, 
+                'email' => $applicant->user->email,
+                'car' => [
+                    'id' => $applicant->car->id,
+                    'name' => $applicant->car->name_car,
+                    'status_name' => $applicant->car->status,
+                    'path' => $applicant->car->path ? env('APP_URL') . 'uploads/profiles/' . $applicant->car->path : null,
+                ],
+                'path' => $applicant->user->path ? env('APP_URL') . 'uploads/profiles/' . $applicant->user->path : null,  
+                'purpose' => $applicant->purpose,
+                'submission_date' => $applicant->submission_date,
+                'expiry_date' => $applicant->expiry_date,
+                'status' => $applicant->status,
+                'notes' => $applicant->notes,
+            ];
+        
+            return response()->json([
+                'dataApplicant' => $dataApplicant
+            ], 200);
+        }
+            }
+         
+    } 
