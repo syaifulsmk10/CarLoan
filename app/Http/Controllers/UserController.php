@@ -139,19 +139,19 @@ class UserController extends Controller
         }
     
         // Update user data
-        if ($request->has('FirstName')) {
+        if ($request->FirstName) {
             $user->FirstName = $request->input('FirstName');
         }
     
-        if ($request->has('LastName')) {
+        if ($request->LastName) {
             $user->LastName = $request->input('LastName');
         }
     
-        if ($request->has('email')) {
+        if ($request->email) {
             $user->email = $request->input('email');
         }
     
-        if ($request->has('password')) {
+        if ($request->password) {
             $user->password = Hash::make($request->input('password'));
         }
 
