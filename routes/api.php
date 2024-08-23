@@ -58,6 +58,7 @@ Route::get('/data/applicants', [DataApplicantController::class, 'index'])->name(
 Route::post('/Applicant/accepted/{id}', [DataApplicantController::class, 'accepted'])->name('accepted'); //done
 Route::post('/Applicant/denied/{id}', [DataApplicantController::class, 'denied'])->name('denied'); //done
 Route::get('/data/applicants/{id}', [DataApplicantController::class, 'detailApplicant'])->name('detailApplicant'); //done
+Route::get('/export/applicants', [DataApplicantController::class, 'exportApplicants']);
 
 
 

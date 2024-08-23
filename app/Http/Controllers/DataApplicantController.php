@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ApplicantsExport;
 use App\Models\Applicant;
 use App\Models\Car;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DataApplicantController extends Controller
 {
@@ -81,6 +83,44 @@ class DataApplicantController extends Controller
             
 
         ], 200);
+}
+
+public function exportApplicants(Request $request)
+{
+    $applicantQuery = Applicant::with('user');
+
+    if ($request->has('status')) {
+        $status = $request->input('status');
+        if (is_array($status)) {
+            $applicantQuery->whereIn('status', $status);
+        } else {
+            $applicantQuery->where('status', $status);
+        }
+    }
+
+    if ($request->has('start_date') && $request->has('end_date')) {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $applicantQuery->whereBetween('submission_date', [$startDate, $endDate]);
+    }
+
+    $applicants = $applicantQuery->get()->transform(function ($applicant) {
+        return [
+            'id' => $applicant->id,
+            'user_id' => $applicant->user_id,
+            'name' => $applicant->user->FirstName . ' ' . $applicant->user->LastName,
+            'email' => $applicant->user->email,
+            'car_id' => $applicant->car_id,
+            'path' => $applicant->user->path ? env('APP_URL') . 'uploads/profiles' . $applicant->user->path : null,
+            'purpose' => $applicant->purpose,
+            'submission_date' => $applicant->submission_date,
+            'expiry_date' => $applicant->expiry_date,
+            'status' => $applicant->status,
+            'notes' => $applicant->notes,
+        ];
+    });a
+
+    return Excel::download(new ApplicantsExport($applicants), 'applicants.xlsx');
 }
 
 public function detailApplicant($id){
