@@ -53,7 +53,7 @@ class DataApplicantController extends Controller
                     'id' => $Cars->id,
                     'name' => $Cars->name_car,  
                     'status_name' =>  $Cars->status ,
-                    'path' => $Cars->path ? env('APP_URL') . 'uploads/profiles' . $Cars->path : null,  
+                    'path' => $Cars->path ? env('APP_URL') . 'uploads/profiles/' . $Cars->path : null,  
                 ];
     
             }
@@ -67,7 +67,7 @@ class DataApplicantController extends Controller
                     'name' => $applicants->user->FirstName . ' ' . $applicants->user->LastName, 
                     'email' => $applicants->user->email,
                     'car_id' =>  $applicants->car_id ,
-                    'path' => $applicants->user->path ? env('APP_URL') . 'uploads/profiles' . $applicants->user->path : null,  
+                    'path' => $applicants->user->path ? env('APP_URL') . 'uploads/profiles/' . $applicants->user->path : null,  
                     'purpose' => $applicants->purpose,
                     'submission_date' => $applicants->submission_date,
                     'expiry_date' => $applicants->expiry_date,
@@ -121,7 +121,7 @@ public function exportApplicants(Request $request)
                 'name' => $applicant->user->FirstName . ' ' . $applicant->user->LastName,
                 'email' => $applicant->user->email,
                 'car_id' => $applicant->car_id,
-                'path' => $applicant->user->path ? env('APP_URL') . 'uploads/profiles' . $applicant->user->path : null,
+                'path' => $applicant->user->path ? env('APP_URL') . 'uploads/profiles/' . $applicant->user->path : null,
                 'purpose' => $applicant->purpose,
                 'submission_date' => $applicant->submission_date,
                 'expiry_date' => $applicant->expiry_date,
@@ -163,9 +163,9 @@ public function detailApplicant($id){
                 'id' => $car->id,
                 'name' => $car->name_car,
                 'status_name' => $car->status,
-                'path' => $car->path ? env('APP_URL') . 'uploads/profiles' . $car->path : null,
+                'path' => $car->path ? env('APP_URL') . 'uploads/profiles/' . $car->path : null,
             ],
-            'path' => $applicant->user->path ? env('APP_URL') . 'uploads/profiles' . $applicant->user->path : null,  
+            'path' => $applicant->user->path ? env('APP_URL') . 'uploads/profiles/' . $applicant->user->path : null,  
             'purpose' => $applicant->purpose,
             'submission_date' => $applicant->submission_date,
             'expiry_date' => $applicant->expiry_date,
