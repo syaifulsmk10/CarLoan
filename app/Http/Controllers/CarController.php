@@ -16,7 +16,7 @@ class CarController extends Controller
      */
     public function getCar()
     {
-        if(Auth::user()->role->id == 1 && Auth::user()->role->id == 2 ){
+        if(Auth::user()->role->id == 1 || Auth::user()->role->id == 2 ){
             $Car = Car::all();
             if (!$Car) {
                 return response()->json([
