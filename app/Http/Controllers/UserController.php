@@ -8,28 +8,24 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class UserController extends Controller
 {
     
     public function qrLogin(Request $request)
 {
-    $token = $request->query('token');
+    $url = route('login'); // Mengarahkan ke halaman login
+    $qrImage = QrCode::format('png')->size(300)->generate($url);
 
-    // Find the user by token
-    $user = User::where('qr_token', $token)->first();
+    // Simpan QR code ke direktori public/images
+    $outputFile = public_path('images/qrcode.png');
 
-    if ($user) {
-        // Log the user in
-        Auth::login($user);
+    // Simpan QR code langsung ke path tersebut
+    file_put_contents($outputFile, $qrImage);
 
-        // Clear the token
-        $user->update(['qr_token' => null]);
-
-        return response()->json(['message' => 'Login successful'], 200);
-    }
-
-    return response()->json(['message' => 'Invalid token'], 401);
+    return response()->json(['message' => 'QR code generated successfully', 'url' => asset('images/qrcode.png')]);
 }
 
 
@@ -228,7 +224,7 @@ class UserController extends Controller
                 'email' => $user->email,
                 'role_id' => $user->role_id,
                 'rolename' => $user->role ? $user->role->name : null,
-                'path' => $user->path ? env('APP_URL') . 'uploads/profiles/' . $user->path : null,
+                'path' => $user->path ? env('APP_URL') . $user->path : null,
             ];
         
             return response()->json([
@@ -262,7 +258,7 @@ class UserController extends Controller
                     'email' => $user->email,
                     'role' => $user->role_id,
                     'rolename' => $user->role ? $user->role->name : null,
-                    'path' => $user->path ? env('APP_URL') . 'uploads/profiles/' . $user->path : null,
+                    'path' => $user->path ? env('APP_URL')  . $user->path : null,
                 ];
             });
         

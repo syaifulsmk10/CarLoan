@@ -31,7 +31,7 @@ class CarController extends Controller
                     'id' => $Cars->id,
                     'name' => $Cars->name_car,  
                     'status_name' =>  $Cars->status ,
-                    'path' => $Cars->path ? env('APP_URL') . 'uploads/profiles' . $Cars->path : null,  
+                    'path' => $Cars->path ? env('APP_URL') .  $Cars->path : null,  
                 ];
     
             }
