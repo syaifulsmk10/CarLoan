@@ -18,6 +18,11 @@ class Car extends Model
     {
         return $this->hasMany(Applicant::class);
     }
+    
+    public function getImageAttribute($value)
+        {
+            return env('APP_URL') . $value;
+        }
 
     // public function status()
     // {
