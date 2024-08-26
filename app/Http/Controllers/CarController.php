@@ -16,31 +16,34 @@ class CarController extends Controller
      */
     public function getCar()
     {
-        $Car = Car::all();
-        if (!$Car) {
+        if(Auth::user()->role->id == 1){
+            $Car = Car::all();
+            if (!$Car) {
+                return response()->json([
+                    'message' => "Car Not Found"
+                ]);
+            }
+    
+    
+            $dataCar = [];
+            foreach($Car as $Cars){
+                $datacar[] = [
+                    'id' => $Cars->id,
+                    'name' => $Cars->name_car,  
+                    'status_name' =>  $Cars->status ,
+                    'path' => $Cars->path ? env('APP_URL') . 'uploads/profiles' . $Cars->path : null,  
+                ];
+    
+            }
+    
+         
+    
             return response()->json([
-                'message' => "Car Not Found"
-            ]);
+                'data' => $datacar,
+    
+            ], 200);
         }
-
-
-        $dataCar = [];
-        foreach($Car as $Cars){
-            $datacar[] = [
-                'id' => $Cars->id,
-                'name' => $Cars->name_car,  
-                'status_name' =>  $Cars->status ,
-                'path' => $Cars->path ? env('APP_URL') . 'uploads/profiles' . $Cars->path : null,  
-            ];
-
-        }
-
-     
-
-        return response()->json([
-            'data' => $datacar,
-
-        ], 200);
+       
     }
 
     /**
@@ -48,38 +51,40 @@ class CarController extends Controller
      */
     public function create(Request $request)
     {   
-        $validator = Validator::make($request->all(), [
-            'status' => 'required|string|max:255',
-            'name_car' => 'required|string|max:255',
-            'path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi file gambar
-        ]);
+        if(Auth::user()->role->id == 1){
+            $validator = Validator::make($request->all(), [
+                'status' => 'required|string|max:255',
+                'name_car' => 'required|string|max:255',
+                'path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi file gambar
+            ]);
+        
+            if ($validator->fails()) {
+                return response()->json([
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
     
-        if ($validator->fails()) {
+            $Car = Car::create([
+                'status' => $request->status,
+                'name_car' => $request->name_car,
+            ]);
+          
+            if ($request->hasFile('path')) {
+                $image = $request->file('path');
+                $imageName = 'VA' . Str::random(40) . '.' . $image->getClientOriginalName();
+                $image->move(public_path('uploads/profiles'), $imageName);
+                $imagePath = $imageName; // Store the image path
+            }
+        
+            // Update user with image path
+            $Car->update([
+                'path' => $imagePath,
+            ]);
+        
             return response()->json([
-                'errors' => $validator->errors(),
-            ], 422);
+                'message' => 'User created successfully',
+            ], 200);
         }
-
-        $Car = Car::create([
-            'status' => $request->status,
-            'name_car' => $request->name_car,
-        ]);
-      
-        if ($request->hasFile('path')) {
-            $image = $request->file('path');
-            $imageName = 'VA' . Str::random(40) . '.' . $image->getClientOriginalName();
-            $image->move(public_path('uploads/profiles'), $imageName);
-            $imagePath = $imageName; // Store the image path
-        }
-    
-        // Update user with image path
-        $Car->update([
-            'path' => $imagePath,
-        ]);
-    
-        return response()->json([
-            'message' => 'User created successfully',
-        ], 200);
     }
 
     /**
@@ -111,43 +116,46 @@ class CarController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'status' => 'required|string|max:255',
-            'name_car' => 'required|string|max:255',
-            'path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi file gambar
-        ]);
-    
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $Car = Car::findOrFail($id);
-
-
-        $Car->update([
-            'status' => $request->status,
-            'name_car' => $request->name_car,
-        ]);
-    
-        if ($request->hasFile('path')) {
-            if ($Car->path && file_exists(public_path('uploads/profiles/' . $Car->path))) {
-                unlink(public_path('uploads/profiles/' . $Car->path));
+        if(Auth::user()->role->id == 1){
+            $validator = Validator::make($request->all(), [
+                'status' => 'required|string|max:255',
+                'name_car' => 'required|string|max:255',
+                'path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi file gambar
+            ]);
+        
+            if ($validator->fails()) {
+                return response()->json([
+                    'errors' => $validator->errors(),
+                ], 422);
             }
     
-            $image = $request->file('path');
-            $imageName = 'VA' . Str::random(40) . '.' . $image->getClientOriginalName();
-            $image->move(public_path('uploads/profiles'), $imageName);
+            $Car = Car::findOrFail($id);
+    
     
             $Car->update([
-                'path' => $imageName,
+                'status' => $request->status,
+                'name_car' => $request->name_car,
             ]);
+        
+            if ($request->hasFile('path')) {
+                if ($Car->path && file_exists(public_path('uploads/profiles/' . $Car->path))) {
+                    unlink(public_path('uploads/profiles/' . $Car->path));
+                }
+        
+                $image = $request->file('path');
+                $imageName = 'VA' . Str::random(40) . '.' . $image->getClientOriginalName();
+                $image->move(public_path('uploads/profiles'), $imageName);
+        
+                $Car->update([
+                    'path' => $imageName,
+                ]);
+            }
+        
+            return response()->json([
+                'message' => 'Car updated successfully',
+            ], 200);
         }
-    
-        return response()->json([
-            'message' => 'Car updated successfully',
-        ], 200);
+       
     }
 
     /**
@@ -155,24 +163,27 @@ class CarController extends Controller
      */
     public function destroy(Car $id)
     {
-        $Car = Car::findOrFail($id);
+        if(Auth::user()->role->id == 1){
+            $Car = Car::findOrFail($id);
 
-        if (!$Car) {
+            if (!$Car) {
+                return response()->json([
+                    'message' => "Car Not Found"
+                ], 404);
+            }
+    
+            // Delete image if exists
+            if ($Car->path && file_exists(public_path('uploads/profiles/' . $Car->path))) {
+                unlink(public_path('uploads/profiles/' . $Car->path));
+            }
+        
+            // Delete the car record
+            $Car->delete();
+        
             return response()->json([
-                'message' => "Car Not Found"
-            ], 404);
+                'message' => 'Car deleted successfully',
+            ], 200);
         }
-
-        // Delete image if exists
-        if ($Car->path && file_exists(public_path('uploads/profiles/' . $Car->path))) {
-            unlink(public_path('uploads/profiles/' . $Car->path));
-        }
-    
-        // Delete the car record
-        $Car->delete();
-    
-        return response()->json([
-            'message' => 'Car deleted successfully',
-        ], 200);
+     
     }
 }
