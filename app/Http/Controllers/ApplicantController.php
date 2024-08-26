@@ -68,6 +68,10 @@ class ApplicantController extends Controller
 
         ], 200);
 
+        }else{
+            return response()->json([
+                "message" => "Your Login Not user"
+            ]);
         }
         
 
@@ -120,6 +124,10 @@ class ApplicantController extends Controller
                     }
                 }
         
+        }else{
+            return response()->json([
+                "message" => "Your Login Not user"
+            ]);
         }
       
        
@@ -205,6 +213,10 @@ class ApplicantController extends Controller
                         'message' => 'Applicant cannot be updated.'
                     ], 400);
                 }
+        }else{
+            return response()->json([
+                "message" => "Your Login Not user"
+            ]);
         }
        
     }
@@ -250,6 +262,10 @@ class ApplicantController extends Controller
                 ]);
             }
     
+        }else{
+            return response()->json([
+                "message" => "Your Login Not user"
+            ]);
         }
     }
     
@@ -293,6 +309,10 @@ class ApplicantController extends Controller
             return response()->json([
                 'dataApplicant' => $dataApplicant
             ], 200);
+        }else{
+            return response()->json([
+                "message" => "Your Login Not user"
+            ]);
         }
             }
          

@@ -111,6 +111,10 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'User created successfully',
             ], 200);
+        }else{
+            return response()->json([
+                "message" => "Your Login Not Admin"
+            ]);
         }
     }
     
@@ -174,6 +178,10 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'User updated successfully',
             ], 200);
+        }else{
+            return response()->json([
+                "message" => "Your Login Not Admin"
+            ]);
         }
       
     }
@@ -193,6 +201,10 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'User deleted successfully',
             ], 200);
+        }else{
+            return response()->json([
+                "message" => "Your Login Not Admin"
+            ]);
         }
     }
 
@@ -223,6 +235,10 @@ class UserController extends Controller
                 'data' => $dataUser,
             ], 200);
          
+        }else{
+            return response()->json([
+                "message" => "Your Login Not Admin"
+            ]);
         }
        
     }
@@ -255,6 +271,10 @@ class UserController extends Controller
                 'data' => $users,
                 'total_pages' => $users->lastPage(),
             ], 200);
+        }else{
+            return response()->json([
+                "message" => "Your Login Not Admin"
+            ]);
         }
         }
        

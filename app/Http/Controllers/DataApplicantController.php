@@ -86,6 +86,10 @@ class DataApplicantController extends Controller
                 
     
             ], 200);
+        }else{
+            return response()->json([
+                "message" => "Your Login Not Admin"
+            ]);
         }
       
     }
@@ -127,6 +131,10 @@ public function exportApplicants(Request $request)
         });
     
         return Excel::download(new ApplicantsExport($applicants), 'applicants.xlsx');
+    }else{
+        return response()->json([
+            "message" => "Your Login Not Admin"
+        ]);
     }
 }
 
@@ -168,6 +176,10 @@ public function detailApplicant($id){
         return response()->json([
             'dataApplicant' => $dataApplicant
         ], 200);
+    }else{
+        return response()->json([
+            "message" => "Your Login Not Admin"
+        ]);
     }
 }
 
@@ -220,6 +232,10 @@ public function accepted($id){
                         ], 400);
                     }
                 }    
+    }else{
+        return response()->json([
+            "message" => "Your Login Not Admin"
+        ]);
     }
             
     }
@@ -262,6 +278,10 @@ public function accepted($id){
                 ], 400);
             }
             
+        }else{
+            return response()->json([
+                "message" => "Your Login Not Admin"
+            ]);
         }
         }
        

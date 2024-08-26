@@ -42,6 +42,10 @@ class CarController extends Controller
                 'data' => $datacar,
     
             ], 200);
+        }else{
+            return response()->json([
+                "message" => "Your Login Not Admin"
+            ]);
         }
        
     }
@@ -84,6 +88,10 @@ class CarController extends Controller
             return response()->json([
                 'message' => 'User created successfully',
             ], 200);
+        }else{
+            return response()->json([
+                "message" => "Your Login Not Admin"
+            ]);
         }
     }
 
@@ -154,6 +162,10 @@ class CarController extends Controller
             return response()->json([
                 'message' => 'Car updated successfully',
             ], 200);
+        }else{
+            return response()->json([
+                "message" => "Your Login Not Admin"
+            ]);
         }
        
     }
@@ -183,6 +195,10 @@ class CarController extends Controller
             return response()->json([
                 'message' => 'Car deleted successfully',
             ], 200);
+        }else{
+            return response()->json([
+                "message" => "Your Login Not Admin"
+            ]);
         }
      
     }
