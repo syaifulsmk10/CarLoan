@@ -173,7 +173,7 @@ class CarController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Car $id)
+    public function deleteCar(Car $id)
     {
         if(Auth::user()->role->id == 1){
             $Car = Car::findOrFail($id);
