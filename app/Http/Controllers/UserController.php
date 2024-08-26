@@ -224,7 +224,7 @@ class UserController extends Controller
                 'email' => $user->email,
                 'role_id' => $user->role_id,
                 'rolename' => $user->role ? $user->role->name : null,
-                'path' => $user->path ? env('APP_URL') . $user->path : null,
+                'path' => $user->path ? env('APP_URL') . 'uploads/profiles/' . $user->path : null,
             ];
         
             return response()->json([
