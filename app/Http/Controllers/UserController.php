@@ -158,6 +158,8 @@ class UserController extends Controller
             if ($request->password) {
                 $user->password = Hash::make($request->password);
             }
+
+        
     
             if ($request->hasFile('path')) {
                 $image = $request->file('path');
