@@ -17,6 +17,18 @@ class DataApplicantController extends Controller
         if(Auth::user()->role->id == 1){
             $applicantQuery = Applicant::with('user');
 
+
+            $search = $request->input('search');
+            $applicantQuery->where(function ($q) use ($search) {
+                $q->where('purpose', 'LIKE', "%{$search}%")
+                    ->orWhere('notes', 'LIKE', "%{$search}%")
+                    ->orWhereHas('user', function ($q) use ($search) {
+                        $q->where('FirstName', 'LIKE', "%{$search}%");
+                        $q->where('LastName', 'LIKE', "%{$search}%");
+                        $q->where('email', 'LIKE', "%{$search}%");
+                    });
+            });
+
             // Filter berdasarkan status jika ada di request
             if ($request->has('status')) {
                 $status = $request->input('status');

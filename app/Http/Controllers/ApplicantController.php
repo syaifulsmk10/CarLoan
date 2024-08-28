@@ -17,6 +17,19 @@ class ApplicantController extends Controller
     {
         if(Auth::user()->role->id == 2){
             $applicantQuery = Applicant::where('user_id', Auth::user()->id);
+    
+    
+            $search = $request->input('search');
+            $applicantQuery->where(function ($q) use ($search) {
+                $q->where('purpose', 'LIKE', "%{$search}%")
+                    ->orWhere('notes', 'LIKE', "%{$search}%")
+                    ->orWhereHas('user', function ($q) use ($search) {
+                        $q->where('FirstName', 'LIKE', "%{$search}%");
+                        $q->where('LastName', 'LIKE', "%{$search}%");
+                        $q->where('email', 'LIKE', "%{$search}%");
+                    });
+            });
+
 
     if ($request->has('status')) {
         $status = $request->input('status');

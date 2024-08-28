@@ -144,19 +144,19 @@ class UserController extends Controller
         
             // Update user data
             if ($request->FirstName) {
-                $user->FirstName = $request->input('FirstName');
+                $user->FirstName = $request->FirstName;
             }
         
             if ($request->LastName) {
-                $user->LastName = $request->input('LastName');
+                $user->LastName = $request->LastName;
             }
         
             if ($request->email) {
-                $user->email = $request->input('email');
+                $user->email = $request->email;
             }
         
             if ($request->password) {
-                $user->password = Hash::make($request->input('password'));
+                $user->password = Hash::make($request->password);
             }
     
             if ($request->hasFile('path')) {
