@@ -243,13 +243,25 @@ class UserController extends Controller
 
     public function getAllUser(Request $request) {
         // Ambil pengguna dengan relasi role dan lakukan pagination
-        if(Auth::user()->role->id == 1){
+        if (Auth::user()->role->id == 1) {
             $perPage = $request->input('per_page', 100);
+            $search = $request->input('search');
     
-            $users = User::with('role')
-            ->where('role_id', 2) // Tambahkan filter untuk role_id
-            ->paginate($perPage);
-        
+            // Query untuk mengambil pengguna dengan relasi role dan melakukan filtering berdasarkan role_id dan pencarian
+            $usersQuery = User::with('role')
+                ->where('role_id', 2); // Tambahkan filter untuk role_id
+    
+            // Tambahkan pencarian jika ada
+            if ($search) {
+                $usersQuery->where(function ($q) use ($search) {
+                    $q->where('FirstName', 'LIKE', "%{$search}%")
+                        ->orWhere('LastName', 'LIKE', "%{$search}%")
+                        ->orWhere('email', 'LIKE', "%{$search}%");
+                });
+            }
+    
+            // Lakukan pagination setelah filter diterapkan
+            $users = $usersQuery->paginate($perPage);
             // Ubah data koleksi pengguna
             $users->getCollection()->transform(function ($user) {
                 return [

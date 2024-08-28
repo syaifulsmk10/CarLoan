@@ -23,9 +23,9 @@ class DataApplicantController extends Controller
                 $q->where('purpose', 'LIKE', "%{$search}%")
                     ->orWhere('notes', 'LIKE', "%{$search}%")
                     ->orWhereHas('user', function ($q) use ($search) {
-                        $q->where('FirstName', 'LIKE', "%{$search}%");
-                        $q->where('LastName', 'LIKE', "%{$search}%");
-                        $q->where('email', 'LIKE', "%{$search}%");
+                        $q->where('FirstName', 'LIKE', "%{$search}%")
+                          ->orWhere('LastName', 'LIKE', "%{$search}%")
+                          ->orWhere('email', 'LIKE', "%{$search}%");
                     });
             });
 

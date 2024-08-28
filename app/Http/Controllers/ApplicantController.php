@@ -22,12 +22,7 @@ class ApplicantController extends Controller
             $search = $request->input('search');
             $applicantQuery->where(function ($q) use ($search) {
                 $q->where('purpose', 'LIKE', "%{$search}%")
-                    ->orWhere('notes', 'LIKE', "%{$search}%")
-                    ->orWhereHas('user', function ($q) use ($search) {
-                        $q->where('FirstName', 'LIKE', "%{$search}%");
-                        $q->where('LastName', 'LIKE', "%{$search}%");
-                        $q->where('email', 'LIKE', "%{$search}%");
-                    });
+                    ->orWhere('notes', 'LIKE', "%{$search}%");
             });
 
 
