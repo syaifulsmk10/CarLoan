@@ -16,6 +16,7 @@ class DataApplicantController extends Controller
 
         if(Auth::user()->role->id == 1){
             $applicantQuery = Applicant::with('user');
+            $applicant = $applicantQuery->get(); 
 
 
             $search = $request->input('search');
@@ -45,7 +46,7 @@ class DataApplicantController extends Controller
                 $applicantQuery->whereBetween('submission_date', [$startDate, $endDate]);
             }
         
-            $applicant = $applicantQuery->get(); 
+    
     
             $perpage = $request->input("per_page", 100);
             $applicant = $applicantQuery->paginate($perpage);

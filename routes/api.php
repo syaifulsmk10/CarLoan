@@ -26,6 +26,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post("/login", [UserController::class, 'postLogin'])->name("login"); //done
 Route::get('auth/qr-login', [UserController::class, 'qrLogin'])->name("qrLogin");; // For QR code login
+Route::get('auth/qr-path-login', [UserController::class, 'qrpagelogin'])->name("qrpagelogin");; // For QR code login
 
 Route::middleware('auth:sanctum')->group(function () {
 

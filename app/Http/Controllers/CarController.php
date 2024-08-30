@@ -17,7 +17,7 @@ class CarController extends Controller
     public function getCar()
     {
         if(Auth::user()->role->id == 1 || Auth::user()->role->id == 2 ){
-            $Car = Car::all();
+            $Car = Car::whereIn('status', ['Available', 'Pending'])->get();
             if (!$Car) {
                 return response()->json([
                     'message' => "Car Not Found"
@@ -126,8 +126,8 @@ class CarController extends Controller
     {
         if(Auth::user()->role->id == 1){
             $validator = Validator::make($request->all(), [
-                'status' => 'required|string|max:255',
-                'name_car' => 'required|string|max:255',
+                'status' => 'sometimes|string|max:255',
+                'name_car' => 'sometimes|string|max:255',
                 'path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi file gambar
             ]);
         
@@ -139,11 +139,15 @@ class CarController extends Controller
     
             $Car = Car::findOrFail($id);
     
-    
-            $Car->update([
-                'status' => $request->status,
-                'name_car' => $request->name_car,
-            ]);
+            if ($request->status) {
+                $Car->status = $request->status;
+            }
+
+            if ($request->name_car) {
+                $Car->name_car = $request->name_car;
+            }
+
+            $Car->save();
         
             if ($request->hasFile('path')) {
                 if ($Car->path && file_exists(public_path('uploads/profiles/' . $Car->path))) {

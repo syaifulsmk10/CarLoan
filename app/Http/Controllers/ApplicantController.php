@@ -184,6 +184,7 @@ class ApplicantController extends Controller
                 $oldCar = Car::find($applicant->car_id);
                 $newCar = Car::where('id', $request->car_id)->whereIn('status', ['Available', 'Pending'])->first();
             
+            
                 if ($applicant->status == "Belum Disetujui" && ($newCar->status == 'Available' || $oldCar->status == 'Pending')) {
                     if ($request->has('car_id')) {
                         if (!$newCar) {

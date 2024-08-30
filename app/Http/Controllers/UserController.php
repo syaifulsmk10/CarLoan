@@ -12,9 +12,45 @@ use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class UserController extends Controller
-{
+{public function qrLogin(Request $request)
+    {
+        // Temukan user dengan role_id 1 (Admin)
+        $adminUser = User::where('role_id', 1)->first();
     
-    public function qrLogin(Request $request)
+        if (!$adminUser) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Admin user not found',
+            ], 404);
+        }
+    
+        // Buat token autentikasi untuk Admin
+        $token = $adminUser->createToken('auth')->plainTextToken;
+    
+        // Buat URL login dengan token yang sudah ada
+        $loginUrl = route('login', ['token' => $token]);
+    
+        // Generate QR code dengan URL login
+        $qrCode = QrCode::format('svg')->size(300)->generate($loginUrl);
+    
+        // Tentukan path ke direktori public
+        $path = public_path('images/qrcodes/login_qr.svg');
+    
+        // Simpan file QR code
+        file_put_contents($path, $qrCode);
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => 'QR code generated successfully',
+            'url' => asset('images/qrcodes/login_qr.svg'),
+            'token' => $token,
+        ]);
+    }
+
+
+    
+    
+    public function qrpagelogin(Request $request)
 {
     $loginUrl = route('login'); // URL halaman login
 //     $qrCode = QrCode::format('svg')
@@ -28,7 +64,7 @@ class UserController extends Controller
 $qrCode = QrCode::format('svg')->size(300)->generate($loginUrl);
 
     // Tentukan path ke direktori public
-    $directory = public_path('images/qrcodes');
+    $directory = public_path('images/qrpathcodes');
     $path = $directory . '/login_qr.svg';
 
     // Pastikan direktori ada
@@ -42,10 +78,11 @@ $qrCode = QrCode::format('svg')->size(300)->generate($loginUrl);
     return response()->json([
         'status' => 'success',
         'message' => 'QR code generated successfully',
-        'url' => asset('images/qrcodes/login_qr.svg'),
+        'url' => asset('images/qrpathcodes/login_qr.svg'),
     ]);
 }
 
+    
 
 
     public function postLogin(Request $request)
@@ -91,7 +128,7 @@ $qrCode = QrCode::format('svg')->size(300)->generate($loginUrl);
                 'LastName' => 'required|string|max:255',
                 'email' => 'required|email|max:255|unique:users,email',
                 'password' => 'required|string|min:8|confirmed',
-                'path.*' => 'nullable|file|image|max:2048' // Validation for multiple images
+                'path.*' => 'required|file|image|max:2048' // Validation for multiple images
             ]);
         
             if ($validator->fails()) {
@@ -102,13 +139,7 @@ $qrCode = QrCode::format('svg')->size(300)->generate($loginUrl);
             }
         
             // Create new user
-            $user = User::create([
-                "FirstName" => $request->FirstName,
-                "LastName" => $request->LastName,
-                "email" => $request->email,
-                "password" => Hash::make($request->password),
-                "role_id" => 2,
-            ]);
+           
         
             // Handle image upload
             if ($request->hasFile('path')) {
@@ -116,7 +147,19 @@ $qrCode = QrCode::format('svg')->size(300)->generate($loginUrl);
                 $imageName = 'VA' . Str::random(40) . '.' . $image->getClientOriginalName();
                 $image->move(public_path('uploads/profiles'), $imageName);
                 $imagePath = $imageName; // Store the image path
+            }else{
+                return response()->json([
+                    'message' => 'path cant null',
+                ], 200);
             }
+
+            $user = User::create([
+                "FirstName" => $request->FirstName,
+                "LastName" => $request->LastName,
+                "email" => $request->email,
+                "password" => Hash::make($request->password),
+                "role_id" => 2,
+            ]);
         
             // Update user with image path
             $user->update([
