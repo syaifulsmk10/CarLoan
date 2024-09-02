@@ -59,7 +59,7 @@ class CarController extends Controller
             $validator = Validator::make($request->all(), [
                 'status' => 'required|string|max:255',
                 'name_car' => 'required|string|max:255',
-                'path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi file gambar
+                'path' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi file gambar
             ]);
         
             if ($validator->fails()) {
