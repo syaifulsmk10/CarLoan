@@ -306,7 +306,7 @@ $qrCode = QrCode::format('svg')->size(300)->generate($loginUrl);
     public function getAllUser(Request $request) {
         // Ambil pengguna dengan relasi role dan lakukan pagination
         if (Auth::user()->role->id == 1) {
-            $perPage = $request->input('per_page', 100);
+            $perPage = $request->input('per_page', 5);
             $search = $request->input('search');
     
             // Query untuk mengambil pengguna dengan relasi role dan melakukan filtering berdasarkan role_id dan pencarian

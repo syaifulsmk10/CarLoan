@@ -48,7 +48,7 @@ class DataApplicantController extends Controller
         
     
     
-            $perpage = $request->input("per_page", 100);
+            $perpage = $request->input("per_page", 5);
             $applicant = $applicantQuery->paginate($perpage);
             $totalpage = $applicant->lastPage();
     
