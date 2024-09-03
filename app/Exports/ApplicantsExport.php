@@ -6,11 +6,10 @@ use App\Models\Applicant;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class ApplicantsExport implements FromCollection
+class ApplicantsExport implements FromCollection, WithHeadings
 {
-    /**
-    * @return \Illuminate\Support\Collection
-    */
+    protected $applicants;
+
     public function __construct($applicants)
     {
         $this->applicants = $applicants;
@@ -21,7 +20,7 @@ class ApplicantsExport implements FromCollection
         return $this->applicants;
     }
 
-    public function headings(): array   
+    public function headings(): array
     {
         return [
             'ID',
@@ -29,6 +28,7 @@ class ApplicantsExport implements FromCollection
             'Name',
             'Email',
             'Car ID',
+            'Car Name',
             'Path',
             'Purpose',
             'Submission Date',

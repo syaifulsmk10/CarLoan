@@ -15,7 +15,7 @@ class DataApplicantController extends Controller
     public function index(Request $request){
 
         if(Auth::user()->role->id == 1){
-            $applicantQuery = Applicant::with('user');
+            $applicantQuery = Applicant::with('user', 'car');
             $applicant = $applicantQuery->get(); 
 
 
@@ -80,6 +80,7 @@ class DataApplicantController extends Controller
                     'name' => $applicants->user->FirstName . ' ' . $applicants->user->LastName, 
                     'email' => $applicants->user->email,
                     'car_id' =>  $applicants->car_id ,
+                    'car_name' =>    $applicants->car->name_car ,
                     'path' => $applicants->user->path ? env('APP_URL') . 'uploads/profiles/' . $applicants->user->path : null,  
                     'purpose' => $applicants->purpose,
                     'submission_date' => $applicants->submission_date,
@@ -107,10 +108,9 @@ class DataApplicantController extends Controller
       
     }
 
-public function exportApplicants(Request $request)
-{
-    if(Auth::user()->role->id == 1){
-        $applicantQuery = Applicant::with('user');
+    public function exportApplicants(Request $request)
+    {
+        $applicantQuery = Applicant::with('user', 'car');
 
         if ($request->has('status')) {
             $status = $request->input('status');
@@ -120,13 +120,13 @@ public function exportApplicants(Request $request)
                 $applicantQuery->where('status', $status);
             }
         }
-    
+
         if ($request->has('start_date') && $request->has('end_date')) {
             $startDate = $request->input('start_date');
             $endDate = $request->input('end_date');
             $applicantQuery->whereBetween('submission_date', [$startDate, $endDate]);
         }
-    
+
         $applicants = $applicantQuery->get()->transform(function ($applicant) {
             return [
                 'id' => $applicant->id,
@@ -134,7 +134,8 @@ public function exportApplicants(Request $request)
                 'name' => $applicant->user->FirstName . ' ' . $applicant->user->LastName,
                 'email' => $applicant->user->email,
                 'car_id' => $applicant->car_id,
-                'path' => $applicant->user->path ? env('APP_URL') . 'uploads/profiles/' . $applicant->user->path : null,
+                'car_name' =>    $applicant->car->name_car ,
+                'path' => $applicant->user->path ? env('APP_URL') . 'uploads/profiles' . $applicant->user->path : null,
                 'purpose' => $applicant->purpose,
                 'submission_date' => $applicant->submission_date,
                 'expiry_date' => $applicant->expiry_date,
@@ -142,14 +143,9 @@ public function exportApplicants(Request $request)
                 'notes' => $applicant->notes,
             ];
         });
-    
+
         return Excel::download(new ApplicantsExport($applicants), 'applicants.xlsx');
-    }else{
-        return response()->json([
-            "message" => "Your Login Not Admin"
-        ]);
     }
-}
 
 
 public function detailApplicant($id){
