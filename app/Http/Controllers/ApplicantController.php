@@ -183,12 +183,10 @@ class ApplicantController extends Controller
                 }
                 $oldCar = Car::find($applicant->car_id);
                 $newCar = Car::where('id', $request->car_id)->whereIn('status', ['Available', 'Pending'])->first();
-                if (!$newCar) {
-                    return response()->json(['message' => 'car_id not found'], 404);
-                }
+              
             
-                if ($applicant->status == "Belum Disetujui" && ($newCar->status == 'Available' || $oldCar->status == 'Pending')) {
-                    if ($request->has('car_id')) {
+                if ($request->has('car_id')) {
+                    if ($applicant->status == "Belum Disetujui" && ($newCar->status == 'Available' || $oldCar->status == 'Pending')) {
                         if (!$newCar) {
                             return response()->json(['message' => 'New car status invalid.'], 400);
                         }
@@ -204,26 +202,22 @@ class ApplicantController extends Controller
                             }
                             $applicant->car_id = $request->car_id;
                         }
-                    }
-                    if ($request->has('purpose')) {
-                        $applicant->purpose = $request->purpose;
-                    }
-            
-                    if ($request->has('submission_date')) {
-                        $applicant->submission_date = $request->submission_date;
-                    }
-            
-                    if ($request->has('expiry_date')) {
-                        $applicant->expiry_date = $request->expiry_date;
-                    }
-                    $applicant->save();
-            
-                    return response()->json(['message' => 'Applicant updated successfully.']);
-                } else {
-                    return response()->json([
-                        'message' => 'Applicant cannot be updated.'
-                    ], 400);
+                    }      
+                } 
+                if ($request->has('purpose')) {
+                    $applicant->purpose = $request->purpose;
                 }
+        
+                if ($request->has('submission_date')) {
+                    $applicant->submission_date = $request->submission_date;
+                }
+        
+                if ($request->has('expiry_date')) {
+                    $applicant->expiry_date = $request->expiry_date;
+                }
+                $applicant->save();
+        
+                return response()->json(['message' => 'Applicant updated successfully.']);
         }else{
             return response()->json([
                 "message" => "Your Login Not user"

@@ -27,7 +27,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post("/login", [UserController::class, 'postLogin'])->name("login"); //done
 Route::get('auth/qr-login', [UserController::class, 'qrLogin'])->name("qrLogin");; // For QR code login
 Route::get('auth/qr-path-login', [UserController::class, 'qrpagelogin'])->name("qrpagelogin");; // For QR code login
-
+Route::get('/export/applicants', [DataApplicantController::class, 'exportApplicants']);
 Route::middleware('auth:sanctum')->group(function () {
 
 //crud User  
@@ -59,7 +59,7 @@ Route::get('/data/applicants', [DataApplicantController::class, 'index'])->name(
 Route::post('/Applicant/accepted/{id}', [DataApplicantController::class, 'accepted'])->name('accepted'); //done
 Route::post('/Applicant/denied/{id}', [DataApplicantController::class, 'denied'])->name('denied'); //done
 Route::get('/data/applicants/{id}', [DataApplicantController::class, 'detailApplicant'])->name('detailApplicant'); //done
-Route::get('/export/applicants', [DataApplicantController::class, 'exportApplicants']);
+
 
 
 
