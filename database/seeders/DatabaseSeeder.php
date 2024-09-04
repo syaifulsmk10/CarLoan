@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
         "email" => "admin@admin.com",
         "password" => bcrypt("admin_password"),
         "role_id" => 1, // Menggunakan role_id
-        "path" => "admin.png"
+        "path" => "https://media.istockphoto.com/id/493855843/photo/sleepy-ocelot-close-up.webp?a=1&b=1&s=612x612&w=0&k=20&c=llA_ImCMavNJJisPzjK8-3FYrqtRk9EDr2qaDeBRC3s="
     ]);
 
     // Siswa
