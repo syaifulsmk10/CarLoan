@@ -8,6 +8,8 @@ use App\Http\Controllers\CarController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\DataApplicantController;
 use App\Http\Controllers\ApplicantAdminController;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,8 +32,40 @@ Route::get('auth/qr-path-login', [UserController::class, 'qrpagelogin'])->name("
 Route::get('/export/applicants', [DataApplicantController::class, 'exportApplicants']);
 Route::middleware('auth:sanctum')->group(function () {
 
-Route::get('/navbar', [UserController::class, 'getnavbar']);     
-
+    
+    Route::get('/navbar', function() {
+        if (Auth::check() && (Auth::user()->role->id == 1 || Auth::user()->role_id == 2)) {
+            $user = User::with('role')->where('id', Auth::user()->id)->first();
+    
+            // Periksa apakah pengguna ditemukan
+            if (!$user) {
+                return response()->json([
+                    'message' => 'User not found',
+                ], 404);
+            }
+    
+            // Menyusun data detail pengguna
+            $dataUser = [
+                'id' => $user->id,
+                'FirstName' => $user->FirstName,
+                'LastName' => $user->LastName,
+                'FullName' => $user->FirstName . ' ' . $user->LastName,
+                'email' => $user->email,
+                'role_id' => $user->role_id,
+                'rolename' => $user->role ? $user->role->name : null,
+                'path' => $user->path ? env('APP_URL') . 'uploads/profiles/' . $user->path : null,
+            ];
+    
+            return response()->json([
+                'data' => $dataUser,
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Your Login Not Admin'
+            ], 403);
+        }
+    });
+    
 //crud User  
 Route::get('/users', [UserController::class, 'getAllUser']);  //done
 Route::get('/users/detail/{id}', [UserController::class, 'getUser']); //detail && get input done
