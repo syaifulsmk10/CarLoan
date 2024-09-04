@@ -350,9 +350,9 @@ $qrCode = QrCode::format('svg')->size(300)->generate($loginUrl);
         }
         }
 
-        public function navbar($id) {
-            if(Auth::user()->role->id == 1){
-                $user = User::with('role')->where('id',$id)->first();
+        public function navbar() {
+            if(Auth::user()->role->id == 1 || Auth::user()->role_id == 2){
+                $user = User::with('role')->where("id", Auth::user()->id)->first();
     
                 // Periksa apakah pengguna ditemukan
                 if (!$user) {
