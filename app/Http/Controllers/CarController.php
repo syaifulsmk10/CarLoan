@@ -130,6 +130,7 @@ class CarController extends Controller
                 'name_car' => 'sometimes|string|max:255',
                 'path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi file gambar
             ]);
+            //tess
         
             if ($validator->fails()) {
                 return response()->json([
