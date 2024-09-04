@@ -30,12 +30,13 @@ Route::get('auth/qr-path-login', [UserController::class, 'qrpagelogin'])->name("
 Route::get('/export/applicants', [DataApplicantController::class, 'exportApplicants']);
 Route::middleware('auth:sanctum')->group(function () {
 
+Route::get('/navbar', [UserController::class, 'navbar']);     
+
 //crud User  
 Route::get('/users', [UserController::class, 'getAllUser']);  //done
 Route::get('/users/detail/{id}', [UserController::class, 'getUser']); //detail && get input done
 Route::post('/users/create', [UserController::class, 'addUser']); //done
-Route::post('/users/update/{id}', [UserController::class, 'updateUser']); //done
-Route::get('/navbar', [UserController::class, 'navbar']); //done
+Route::post('/users/update/{id}', [UserController::class, 'updateUser']); //done//done
 Route::delete('/users/delete/{id}', [UserController::class, 'deleteUser']); //done
 
 //Car
