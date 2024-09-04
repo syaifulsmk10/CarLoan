@@ -180,7 +180,7 @@ $qrCode = QrCode::format('svg')->size(300)->generate($loginUrl);
     public function updateUser(Request $request, $id) {
 
         if(Auth::user()->role->id == 1){
-            $user = User::where('id',$id)->first();
+            $user = User::where('id',$id)->where('role_id', 2)->first();
         
             if (!$user) {
                 return response()->json([
