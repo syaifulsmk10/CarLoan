@@ -350,7 +350,7 @@ $qrCode = QrCode::format('svg')->size(300)->generate($loginUrl);
         }
         }
 
-        public function navbar() {
+        public function getnavbar() {
             if(Auth::user()->role->id == 1 || Auth::user()->role_id == 2){
                 $user = User::with('role')->where("id", Auth::user()->id)->first();
     

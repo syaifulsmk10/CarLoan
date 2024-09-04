@@ -30,7 +30,7 @@ Route::get('auth/qr-path-login', [UserController::class, 'qrpagelogin'])->name("
 Route::get('/export/applicants', [DataApplicantController::class, 'exportApplicants']);
 Route::middleware('auth:sanctum')->group(function () {
 
-Route::get('/navbar', [UserController::class, 'navbar']);     
+Route::get('/navbar', [UserController::class, 'getnavbar']);     
 
 //crud User  
 Route::get('/users', [UserController::class, 'getAllUser']);  //done
