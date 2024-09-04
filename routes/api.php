@@ -40,6 +40,7 @@ Route::delete('/users/delete/{id}', [UserController::class, 'deleteUser']); //do
 
 //Car
 
+Route::get('/navbar', [CarController::class, 'navbar']); 
 Route::get('/car', [CarController::class, 'getCar']); 
 Route::post('/car', [CarController::class, 'create']);
 Route::post('/car/{id}', [CarController::class, 'update']);

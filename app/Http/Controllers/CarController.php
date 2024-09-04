@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Car;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -206,5 +207,40 @@ class CarController extends Controller
             ]);
         }
      
+        
+    }
+    public function navbar() {
+        if(Auth::user()->role->id == 1 || Auth::user()->role_id == 2){
+            $user = User::with('role')->where("id", Auth::user()->id)->first();
+
+            // Periksa apakah pengguna ditemukan
+            if (!$user) {
+                return response()->json([
+                    'message' => 'User not found',
+                ], 404);
+            }
+        
+            // Menyusun data detail pengguna
+            $dataUser = [
+                'id' => $user->id,
+                'FirstName' => $user->FirstName,
+                'LastName' => $user->LastName,
+                'FullName' => $user->FirstName . ' ' . $user->LastName,
+                'email' => $user->email,
+                'role_id' => $user->role_id,
+                'rolename' => $user->role ? $user->role->name : null,
+                'path' => $user->path ? env('APP_URL') . 'uploads/profiles/' . $user->path : null,
+            ];
+        
+            return response()->json([
+                'data' => $dataUser,
+            ], 200);
+         
+        }else{
+            return response()->json([
+                "message" => "Your Login Not Admin"
+            ]);
+        }
+       
     }
 }
