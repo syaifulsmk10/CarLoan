@@ -31,16 +31,15 @@ Route::get('/export/applicants', [DataApplicantController::class, 'exportApplica
 Route::middleware('auth:sanctum')->group(function () {
 
 //crud User  
-Route::get('/users', [UserController::class, 'navbar']);  //done
+Route::get('/users', [UserController::class, 'getAllUser']);  //done
 Route::get('/users/detail/{id}', [UserController::class, 'getUser']); //detail && get input done
 Route::post('/users/create', [UserController::class, 'addUser']); //done
 Route::post('/users/update/{id}', [UserController::class, 'updateUser']); //done
-Route::get('/users/profile', [UserController::class, 'navbar']); //done
+Route::get('/navbar', [UserController::class, 'navbar']); //done
 Route::delete('/users/delete/{id}', [UserController::class, 'deleteUser']); //done
 
 //Car
 
-Route::get('/navbar', [CarController::class, 'navbar']); 
 Route::get('/car', [CarController::class, 'getCar']); 
 Route::post('/car', [CarController::class, 'create']);
 Route::post('/car/{id}', [CarController::class, 'update']);
