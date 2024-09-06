@@ -261,6 +261,8 @@ class ApplicantController extends Controller
                     "message" =>  "Applicant Delete successfully",
                 ]);
     
+            }elseif ($applicant->status == "Disetujui" || $applicant->status == "DiTolak") {
+                 $applicant->delete();
             }else {
                 return response()->json([
                     "message" =>  "Applicant Delete Denied",
