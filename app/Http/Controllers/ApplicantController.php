@@ -16,7 +16,8 @@ class ApplicantController extends Controller
     public function index(Request $request)
     {
         if(Auth::user()->role->id == 2){
-            $applicantQuery = Applicant::where('user_id', Auth::user()->id);
+            $applicantQuery = Applicant::where('user_id', Auth::user()->id)
+            ->orderBy('submission_date', 'asc');
     
     
             $search = $request->input('search');
@@ -33,6 +34,10 @@ class ApplicantController extends Controller
         } else {
             $applicantQuery->where('status', $status);
         }
+    }
+    if ($request->has('car_id')) {
+        $carId = $request->input('car_id');
+        $applicantQuery->where('car_id', $carId);
     }
 
     if ($request->has('start_date') && $request->has('end_date')) {
@@ -54,23 +59,56 @@ class ApplicantController extends Controller
             ]);
         }
 
+        $Car = Car::with(['applicants' => function ($query) {
+            $query->where('status', 'Disetujui') // Hanya ambil applicant dengan status Disetujui
+                  ->latest('submission_date')
+                  ->first();
+        }, 'applicants.user'])->get();
 
-        $dataCar = [];
-        foreach($Car as $Cars){
+        if (!$Car) {
+            return response()->json([
+                'message' => "Car Not Found"
+            ]);
+        }
+
+        $datacar = [];
+        foreach ($Car as $Cars) {
+            // Dapatkan peminjam terakhir jika ada
+            $lastApplicant = $Cars->applicants->first();
+            $borrower = $lastApplicant ? $lastApplicant->user->FirstName . ' ' . $lastApplicant->user->LastName : 'Tidak Ada';
+
             $datacar[] = [
                 'id' => $Cars->id,
-                'name' => $Cars->name_car,  
-                'status_name' =>  $Cars->status ,
-                'path' => $Cars->path ? env('APP_URL') . 'uploads/profiles/' . $Cars->path : null,  
+                'name' => $Cars->name_car,
+                'status_name' => $Cars->status,
+                'borrowed_by' => $borrower,  // Tambahkan info peminjam terakhir
+                'path' => $Cars->path ? env('APP_URL') . 'uploads/profiles/' . $Cars->path : null,
             ];
-
         }
+
+
+        $applicants = $applicantQuery->get()->transform(function ($applicant) {
+            return [
+                'id' => $applicant->id,
+                'user_id' => $applicant->user_id,
+                'name' => $applicant->user->FirstName . ' ' . $applicant->user->LastName,
+                'email' => $applicant->user->email,
+                'car_id' => $applicant->car_id,
+                'car_name' =>    $applicant->car->name_car ,
+                'path' => $applicant->user->path ? env('APP_URL') . 'uploads/profiles' . $applicant->user->path : null,
+                'purpose' => $applicant->purpose,
+                'submission_date' => $applicant->submission_date,
+                'expiry_date' => $applicant->expiry_date,
+                'status' => $applicant->status,
+                'notes' => $applicant->notes,
+            ];
+        });
 
      
 
         return response()->json([
             'car' => $datacar,
-            'Applicant' => $applicant,
+            'Applicant' => $applicants,
             'total_page' => $totalpage,
             
 
@@ -96,7 +134,7 @@ class ApplicantController extends Controller
             $validator = Validator::make($request->all(), [
                 'car_id' => 'required|exists:cars,id',  // Memastikan car_id ada di tabel cars
                 'purpose' => 'required|string|max:255', // Validasi purpose sebagai string maksimal 255 karakter
-               'submission_date' => 'required|date_format:Y-m-d\TH:i:s',
+               'submission_date' => 'required|date_format:Y-m-d\TH:i:s|before:toda',
                'expiry_date' => 'required|date_format:Y-m-d\TH:i:s|after:submission_date',  // Memastikan expiry_date adalah tanggal valid dan setelah submission_date
             ]);
         
@@ -174,7 +212,7 @@ class ApplicantController extends Controller
                 ], 422);
             }
         
-                $applicant = Applicant::where('user_id', Auth::user()->id)->where('id', $id)->first();
+                $applicant = Applicant::where('user_id', Auth::user()->id)->where('id', $id)->where('status', 'Belum Disetujui')->first();
         
                 if (!$applicant) {
                     return response()->json([
@@ -182,10 +220,16 @@ class ApplicantController extends Controller
                     ], 404);
                 }
                 $oldCar = Car::find($applicant->car_id);
-                $newCar = Car::where('id', $request->car_id)->whereIn('status', ['Available', 'Pending'])->first();
+                $newCar = Car::where('id', $request->car_id)->first();
               
             
                 if ($request->has('car_id')) {
+
+                    if ($applicant->status == "Belum Disetujui" &&  $newCar->status == 'In Use') {
+                        return response()->json([
+                            "message" => "Car In use"
+                        ]);
+                    }
                     if ($applicant->status == "Belum Disetujui" && ($newCar->status == 'Available' || $oldCar->status == 'Pending')) {
                         if (!$newCar) {
                             return response()->json(['message' => 'New car status invalid.'], 400);
@@ -324,3 +368,13 @@ class ApplicantController extends Controller
             }
          
     } 
+
+
+
+    //mbilnya tambah status yang pinjem siapa //done
+    //filter mobil ketika di klik ke filter //done
+    //status mobil jadi dimunculinn 
+    //checkbox user munculin semua //done
+    //tanggal buat vaidasi tanggal 
+    //descending subbmisiion date  //done
+    //filter export excell    //done             

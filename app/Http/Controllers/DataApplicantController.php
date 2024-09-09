@@ -12,13 +12,17 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class DataApplicantController extends Controller
 {
-    public function index(Request $request){
+    public function index(Request $request) {
+
+        if (!Auth::check()) {
+            return response()->json([
+                "message" => "User not authenticated"
+            ], 401); // Status 401 untuk unauthorized
+        }
 
         if(Auth::user()->role->id == 1){
             $applicantQuery = Applicant::with('user', 'car');
-            $applicant = $applicantQuery->get(); 
-
-
+    
             $search = $request->input('search');
             $applicantQuery->where(function ($q) use ($search) {
                 $q->where('purpose', 'LIKE', "%{$search}%")
@@ -29,8 +33,8 @@ class DataApplicantController extends Controller
                           ->orWhere('email', 'LIKE', "%{$search}%");
                     });
             });
-
-            // Filter berdasarkan status jika ada di request
+    
+            // Filter berdasarkan status
             if ($request->has('status')) {
                 $status = $request->input('status');
                 if (is_array($status)) {
@@ -39,74 +43,98 @@ class DataApplicantController extends Controller
                     $applicantQuery->where('status', $status);
                 }
             }
+
+            if ($request->has('car_id')) {
+                $carId = $request->input('car_id');
+                $applicantQuery->where('car_id', $carId);
+            }
     
+            // Filter berdasarkan tanggal
             if ($request->has('start_date') && $request->has('end_date')) {
                 $startDate = $request->input('start_date');
                 $endDate = $request->input('end_date');
                 $applicantQuery->whereBetween('submission_date', [$startDate, $endDate]);
             }
-        
     
+          
     
+            // Paginate hasil
             $perpage = $request->input("per_page", 5);
             $applicant = $applicantQuery->paginate($perpage);
             $totalpage = $applicant->lastPage();
     
-            $Car = Car::all();
-            if (!$Car) {
-                return response()->json([
-                    'message' => "Car Not Found"
-                ]);
-            };
+            // Ambil data mobil
+            
+        $Car = Car::all();
+        if (!$Car) {
+            return response()->json([
+                'message' => "Car Not Found"
+            ]);
+        }
+
+        $Car = Car::with(['applicants' => function ($query) {
+            $query->where('status', 'Disetujui') // Hanya ambil applicant dengan status Disetujui
+                  ->latest('submission_date')
+                  ->first();
+        }, 'applicants.user'])->get();
+
+        if (!$Car) {
+            return response()->json([
+                'message' => "Car Not Found"
+            ]);
+        }
+
+        $datacar = [];
+        foreach ($Car as $Cars) {
+            // Dapatkan peminjam terakhir jika ada
+            $lastApplicant = $Cars->applicants->first();
+            $borrower = $lastApplicant ? $lastApplicant->user->FirstName . ' ' . $lastApplicant->user->LastName : 'Tidak Ada';
+
+            $datacar[] = [
+                'id' => $Cars->id,
+                'name' => $Cars->name_car,
+                'status_name' => $Cars->status,
+                'borrowed_by' => $borrower,  // Tambahkan info peminjam terakhir
+                'path' => $Cars->path ? env('APP_URL') . 'uploads/profiles/' . $Cars->path : null,
+            ];
+        }
+
+     
     
-    
-            $datacar = [];
-            foreach($Car as $Cars){
-                $datacar[] = [
-                    'id' => $Cars->id,
-                    'name' => $Cars->name_car,  
-                    'status_name' =>  $Cars->status ,
-                    'path' => $Cars->path ? env('APP_URL') . 'uploads/profiles/' . $Cars->path : null,  
-                ];
-    
-            }
-    
-    
-            $applicant->getCollection()->transform(function ($applicants) {
-    
+            $applicants = $applicantQuery->get()->transform(function ($applicant) {
                 return [
-                    'id' => $applicants->id,
-                    'user_id' => $applicants->user_id,  
-                    'name' => $applicants->user->FirstName . ' ' . $applicants->user->LastName, 
-                    'email' => $applicants->user->email,
-                    'car_id' =>  $applicants->car_id ,
-                    'car_name' =>    $applicants->car->name_car ,
-                    'path' => $applicants->user->path ? env('APP_URL') . 'uploads/profiles/' . $applicants->user->path : null,  
-                    'purpose' => $applicants->purpose,
-                    'submission_date' => $applicants->submission_date,
-                    'expiry_date' => $applicants->expiry_date,
-                    'status' => $applicants->status,
-                    'notes' => $applicants->notes,
+                    'id' => $applicant->id,
+                    'user_id' => $applicant->user_id,
+                    'name' => $applicant->user->FirstName . ' ' . $applicant->user->LastName,
+                    'email' => $applicant->user->email,
+                    'car_id' => $applicant->car_id,
+                    'car_name' =>    $applicant->car->name_car ,
+                    'path' => $applicant->user->path ? env('APP_URL') . 'uploads/profiles' . $applicant->user->path : null,
+                    'purpose' => $applicant->purpose,
+                    'submission_date' => $applicant->submission_date,
+                    'expiry_date' => $applicant->expiry_date,
+                    'status' => $applicant->status,
+                    'notes' => $applicant->notes,
                 ];
             });
-    
-    
-         
+
+              // Cek apakah user meminta untuk export Excel
+              if ($request->input('export') == 'excel') {
+                return Excel::download(new ApplicantsExport($applicants), 'applicants.xlsx');
+            }
     
             return response()->json([
                 'car' => $datacar,
-                'dataApplicant' => $applicant,
+                'dataApplicant' => $applicants,
                 'total_page' => $totalpage,
-                
-    
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 "message" => "Your Login Not Admin"
             ]);
         }
-      
     }
+    
 
     public function exportApplicants(Request $request)
     {

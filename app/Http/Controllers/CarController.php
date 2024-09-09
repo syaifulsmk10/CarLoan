@@ -18,7 +18,7 @@ class CarController extends Controller
     public function getCar()
     {
         if(Auth::user()->role->id == 1 || Auth::user()->role->id == 2 ){
-            $Car = Car::whereIn('status', ['Available', 'Pending'])->get();
+            $Car = Car::whereIn('status', ['Available', 'Pending', 'In Use'])->get();
             if (!$Car) {
                 return response()->json([
                     'message' => "Car Not Found"
