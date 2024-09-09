@@ -44,7 +44,7 @@ class DataApplicantController extends Controller
                 }
             }
 
-            if ($request->has('car_id')) {
+            if ($request->has('car_id') && $request->input('car_id') !== null) {
                 $carId = $request->input('car_id');
                 $applicantQuery->where('car_id', $carId);
             }

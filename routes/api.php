@@ -31,7 +31,7 @@ Route::get('auth/qr-login', [UserController::class, 'qrLogin'])->name("qrLogin")
 Route::get('auth/qr-path-login', [UserController::class, 'qrpagelogin'])->name("qrpagelogin");; // For QR code login
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/export/applicants', [DataApplicantController::class, 'index']);
+    // Route::get('/export/applicants', [DataApplicantController::class, 'index']);
     
     Route::get('/navbar', function() {
         if (Auth::check() && (Auth::user()->role->id == 1 || Auth::user()->role_id == 2)) {

@@ -94,7 +94,7 @@ class ApplicantController extends Controller
                 'name' => $applicant->user->FirstName . ' ' . $applicant->user->LastName,
                 'email' => $applicant->user->email,
                 'car_id' => $applicant->car_id,
-                'car_name' =>    $applicant->car->name_car ,
+                'car_name' =>    $applicant->car->name_car,
                 'path' => $applicant->user->path ? env('APP_URL') . 'uploads/profiles' . $applicant->user->path : null,
                 'purpose' => $applicant->purpose,
                 'submission_date' => $applicant->submission_date,
@@ -134,7 +134,7 @@ class ApplicantController extends Controller
             $validator = Validator::make($request->all(), [
                 'car_id' => 'required|exists:cars,id',  // Memastikan car_id ada di tabel cars
                 'purpose' => 'required|string|max:255', // Validasi purpose sebagai string maksimal 255 karakter
-               'submission_date' => 'required|date_format:Y-m-d\TH:i:s|before:toda',
+               'submission_date' => 'required|date_format:Y-m-d\TH:i:s|after_or_equal:today',
                'expiry_date' => 'required|date_format:Y-m-d\TH:i:s|after:submission_date',  // Memastikan expiry_date adalah tanggal valid dan setelah submission_date
             ]);
         
@@ -199,8 +199,8 @@ class ApplicantController extends Controller
 
         if(Auth::user()->role->id == 2){
             $validator = Validator::make($request->all(), [
-                'car_id' => 'sometimes|exists:cars,id',  // Memastikan car_id ada di tabel cars jika diisi
-                'purpose' => 'sometimes|string|max:255', // Validasi purpose sebagai string maksimal 255 karakter jika diisi
+                'car_id' => 'sometimes|exists:cars,id', 
+                'purpose' => 'sometimes|string|max:255', 
                 'submission_date' => 'sometimes|date_format:Y-m-d\TH:i:s', // Memastikan submission_date adalah format tanggal yang valid jika diisi
                 'expiry_date' => 'sometimes|date_format:Y-m-d\TH:i:s|after:submission_date', // Memastikan expiry_date adalah tanggal valid dan setelah submission_date jika diisi
             ]);
@@ -373,7 +373,7 @@ class ApplicantController extends Controller
 
     //mbilnya tambah status yang pinjem siapa //done
     //filter mobil ketika di klik ke filter //done
-    //status mobil jadi dimunculinn 
+    //status mobil jadi dimunculinn   //done
     //checkbox user munculin semua //done
     //tanggal buat vaidasi tanggal 
     //descending subbmisiion date  //done
