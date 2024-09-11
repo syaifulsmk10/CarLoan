@@ -11,21 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('applicants', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('car_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('purpose');
-            $table->dateTime('submission_date');
-            $table->dateTime('expiry_date');
-            $table->enum('status', ['Belum Disetujui', 'Disetujui', 'DiTolak']);
-            $table->text('notes')->nullable();
-            $table->dateTime('accepted_at')->nullable();
-            $table->dateTime('denied_at')->nullable();
-            $table->dateTime('delete_admin')->nullable();
-            $table->dateTime('delete_user')->nullable();
-            $table->timestamps();
-        });
+            Schema::create('applicants', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('car_id')->constrained()->onDelete('cascade');
+                $table->foreignId('user_id')->constrained()->onDelete('cascade');
+                $table->string('purpose');
+                $table->dateTime('submission_date');
+                $table->dateTime('expiry_date');
+                $table->enum('status', ['Belum Disetujui', 'Disetujui', 'DiTolak']);
+                $table->text('notes')->nullable();
+                $table->dateTime('accepted_at')->nullable();
+                $table->dateTime('denied_at')->nullable();
+                $table->dateTime('delete_admin')->nullable();
+                $table->dateTime('delete_user')->nullable();
+                $table->timestamps();
+            });
     }
 
     /**

@@ -60,33 +60,33 @@ class ApplicantController extends Controller
         }
 
         $Car = Car::with(['applicants' => function ($query) {
-            $query->where('status', 'Disetujui') // Hanya ambil applicant dengan status Disetujui
-                  ->latest('submission_date')
-                  ->first();
-        }, 'applicants.user'])->get();
-
-        if (!$Car) {
-            return response()->json([
-                'message' => "Car Not Found"
-            ]);
-        }
-
+            $query->where('status', 'Disetujui') // Hanya applicant dengan status Disetujui
+                  ->orderBy('submission_date', 'desc') // Urutkan berdasarkan submission_date terbaru
+                  ->first(); // Ambil applicant terbaru
+        }])
+        ->get()
+        ->groupBy('name_car'); // Kelompokkan berdasarkan name_car
+        
         $datacar = [];
-        foreach ($Car as $Cars) {
-            // Dapatkan peminjam terakhir jika ada
-            $lastApplicant = $Cars->applicants->first();
-            $borrower = $lastApplicant ? $lastApplicant->user->FirstName . ' ' . $lastApplicant->user->LastName : 'Tidak Ada';
-            $expiry = $lastApplicant ? $lastApplicant->expiry_date : 'Tidak Ada';
-
-            $datacar[] = [
-                'id' => $Cars->id,
-                'name' => $Cars->name_car,
-                'status_name' => $Cars->status,
-                'expiry_date' => $expiry,
-                'borrowed_by' => $borrower,  // Tambahkan info peminjam terakhir
-                'path' => $Cars->path ? env('APP_URL') . 'uploads/profiles/' . $Cars->path : null,
-            ];
+        foreach ($Car as $nameCar => $carsGroup) {
+            // Ambil mobil dengan applicant terbaru per jenis mobil
+            foreach ($carsGroup as $car) {
+                // Dapatkan peminjam terakhir jika ada
+                $lastApplicant = $car->applicants->first();
+                $borrower = $lastApplicant ? $lastApplicant->user->FirstName . ' ' . $lastApplicant->user->LastName : 'Tidak Ada';
+                $expiry = $lastApplicant ? $lastApplicant->expiry_date : 'Tidak Ada';
+        
+                $datacar[] = [
+                    'id' => $car->id,
+                    'name' => $car->name_car,
+                    'status_name' => $car->status,
+                    'borrowed_by' => $borrower, // Tambahkan info peminjam terakhir
+                    'expiry_date' => $expiry,
+                    'path' => $car->path ? env('APP_URL') . 'uploads/profiles/' . $car->path : null,
+                ];
+            }
         }
+        
     
 
 
