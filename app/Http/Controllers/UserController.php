@@ -51,37 +51,31 @@ class UserController extends Controller
     
     
     public function qrpagelogin(Request $request)
-{
-    $loginUrl = route('login'); // URL halaman login
-//     $qrCode = QrCode::format('svg')
-//     ->size(800)  // Ukuran lebih besar
-//     ->margin(0)  // Menghilangkan margin default
-//     ->generate($loginUrl);
-
-// // Menambahkan styling SVG agar berada di tengah
-// $qrCode = str_replace('<svg', '<svg style="display: block; margin: auto;"', $qrCode);
-
-$qrCode = QrCode::format('svg')->size(300)->generate($loginUrl);
-
-    // Tentukan path ke direktori public
-    $directory = public_path('images/qrpathcodes');
-    $path = $directory . '/login_qr.svg';
-
-    // Pastikan direktori ada
-    if (!file_exists($directory)) {
-        mkdir($directory, 0755, true);
+    {
+        $baseUrl = 'http://45.64.99.242:4060'; // Perbaiki penulisan URL
+        $loginUrl = $baseUrl . '/login';
+        
+        $qrCode = QrCode::format('svg')->size(300)->generate($loginUrl);
+    
+        // Tentukan path ke direktori public
+        $directory = public_path('images/qrpathcodes');
+        $path = $directory . '/login_qr.svg';
+    
+        // Pastikan direktori ada
+        if (!file_exists($directory)) {
+            mkdir($directory, 0755, true);
+        }
+    
+        // Simpan file QR code
+        file_put_contents($path, $qrCode);
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => 'QR code generated successfully',
+            'url' => asset('images/qrpathcodes/login_qr.svg'),
+        ]);
     }
-
-    // Simpan file QR code
-    file_put_contents($path, $qrCode);
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'QR code generated successfully',
-        'url' => asset('images/qrpathcodes/login_qr.svg'),
-    ]);
-}
-
+    
     
 
 
