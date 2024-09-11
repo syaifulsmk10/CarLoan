@@ -91,7 +91,7 @@ $cars = Car::with(['applicants' => function ($query) use ($latestApplicants) {
             $borrower = $lastApplicant ? $lastApplicant->user->FirstName . ' ' . $lastApplicant->user->LastName : 'Tidak Ada';
             $expiry = $lastApplicant ? $lastApplicant->expiry_date : 'Tidak Ada';
 
-            if($cars->status == "In Use"){
+            if($car->status == "In Use"){
                 $datacar[] = [
                     'id' => $car->id,
                     'name' => $car->name_car,
