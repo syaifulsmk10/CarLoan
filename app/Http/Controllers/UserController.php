@@ -53,7 +53,7 @@ class UserController extends Controller
     public function qrpagelogin(Request $request)
     {
         $baseUrl = 'http://45.64.99.242:4060'; // Perbaiki penulisan URL
-        $loginUrl = $baseUrl . '/login';
+        $loginUrl = $baseUrl . '/sign-in';
         
         $qrCode = QrCode::format('svg')->size(300)->generate($loginUrl);
     
