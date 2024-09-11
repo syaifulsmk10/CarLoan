@@ -89,7 +89,8 @@ $cars = Car::with(['applicants' => function ($query) use ($latestApplicants) {
                 $datacar[] = [
                     'car_id' => $car->id,
                     'name_car' => $car->name_car,
-                    'status_name' => $borrower,
+                    'status_name' => $car->status,
+                    'borrowed_by' => $borrower,  
                     'path' => $car->path ? env('APP_URL') . 'uploads/profiles/' . $car->path : null,
                 ];
             }
