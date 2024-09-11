@@ -169,7 +169,7 @@ class ApplicantController extends Controller
                     }else{
                         return response()->json([
                             'message' => "create applicant failed"
-                        ]);
+                        ], 400);
                     }
                 }
         
