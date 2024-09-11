@@ -81,6 +81,8 @@ $cars = Car::with(['applicants' => function ($query) use ($latestApplicants) {
                 $borrower = 'Tidak Ada';
             }
 
+            dd($borrower);
+
             if($car->status == "In Use"){
                 $datacar[] = [
                     'id' => $car->id,
