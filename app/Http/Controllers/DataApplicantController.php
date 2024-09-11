@@ -8,6 +8,7 @@ use App\Models\Car;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class DataApplicantController extends Controller
@@ -72,37 +73,39 @@ class DataApplicantController extends Controller
             ]);
         }
 
-        $Car = Car::select('cars.*')
-        ->join('applicants', 'cars.id', '=', 'applicants.car_id')
-        ->where('applicants.status', 'Disetujui') // Hanya applicant dengan status Disetujui
-        ->orderBy('applicants.submission_date', 'desc') // Urutkan berdasarkan submission_date terbaru
-        ->groupBy('cars.name_car') // Kelompokkan berdasarkan name_car untuk mendapatkan satu mobil per jenis
-        ->with(['applicants' => function ($query) {
-            $query->where('status', 'Disetujui')
-                  ->latest('submission_date') // Ambil applicant terbaru
-                  ->first(); // Pastikan hanya satu applicant
-        }])
-        ->get();
-    
-    $datacar = [];
-    foreach ($Car as $car) {
-        // Dapatkan applicant terbaru jika ada
-        $lastApplicant = $car->applicants->first();
-        $borrower = $lastApplicant ? $lastApplicant->user->FirstName . ' ' . $lastApplicant->user->LastName : 'Tidak Ada';
-        $expiry = $lastApplicant ? $lastApplicant->expiry_date : 'Tidak Ada';
-    
-        $datacar[] = [
-            'id' => $car->id,
-            'name' => $car->name_car,
-            'status_name' => $car->status,
-            'borrowed_by' => $borrower,  // Tambahkan info peminjam terakhir
-            'expiry_date' => $expiry,
-            'path' => $car->path ? env('APP_URL') . 'uploads/profiles/' . $car->path : null,
-        ];
-    }
+        $Car = Car::select('cars.id', 'cars.name_car', 'cars.status', 'cars.path', 
+        DB::raw('MAX(applicants.submission_date) as latest_submission_date'))
+->join('applicants', 'cars.id', '=', 'applicants.car_id')
+->where('applicants.status', 'Disetujui') // Hanya applicant dengan status Disetujui
+->groupBy('cars.name_car') // Kelompokkan berdasarkan name_car untuk mendapatkan satu mobil per jenis
+->orderBy('latest_submission_date', 'desc') // Urutkan berdasarkan submission_date terbaru
+->with(['applicants' => function ($query) {
+$query->where('status', 'Disetujui')
+   ->latest('submission_date') // Ambil applicant terbaru
+   ->first();
+}])
+->get();
 
-    dd($datacar);
-    
+$datacar = [];
+foreach ($Car as $car) {
+// Dapatkan applicant terbaru jika ada
+$lastApplicant = $car->applicants->first();
+$borrower = $lastApplicant ? $lastApplicant->user->FirstName . ' ' . $lastApplicant->user->LastName : 'Tidak Ada';
+$expiry = $lastApplicant ? $lastApplicant->expiry_date : 'Tidak Ada';
+
+$datacar[] = [
+'id' => $car->id,
+'name' => $car->name_car,
+'status_name' => $car->status,
+'borrowed_by' => $borrower,  // Tambahkan info peminjam terakhir
+'expiry_date' => $expiry,
+'path' => $car->path ? env('APP_URL') . 'uploads/profiles/' . $car->path : null,
+];
+}
+
+        
+
+     
     
             $applicants = $applicantQuery->get()->transform(function ($applicant) {
                 return [
