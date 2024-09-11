@@ -76,15 +76,18 @@ class ApplicantController extends Controller
             // Dapatkan peminjam terakhir jika ada
             $lastApplicant = $Cars->applicants->first();
             $borrower = $lastApplicant ? $lastApplicant->user->FirstName . ' ' . $lastApplicant->user->LastName : 'Tidak Ada';
+            $expiry = $lastApplicant ? $lastApplicant->expiry_date : 'Tidak Ada';
 
             $datacar[] = [
                 'id' => $Cars->id,
                 'name' => $Cars->name_car,
                 'status_name' => $Cars->status,
+                'expiry_date' => $expiry,
                 'borrowed_by' => $borrower,  // Tambahkan info peminjam terakhir
                 'path' => $Cars->path ? env('APP_URL') . 'uploads/profiles/' . $Cars->path : null,
             ];
         }
+    
 
 
         $applicants = $applicantQuery->get()->transform(function ($applicant) {
@@ -202,7 +205,7 @@ class ApplicantController extends Controller
                 'car_id' => 'sometimes|exists:cars,id', 
                 'purpose' => 'sometimes|string|max:255', 
                 'submission_date' => 'sometimes|date_format:Y-m-d\TH:i:s', // Memastikan submission_date adalah format tanggal yang valid jika diisi
-                'expiry_date' => 'sometimes|date_format:Y-m-d\TH:i:s|after:submission_date', // Memastikan expiry_date adalah tanggal valid dan setelah submission_date jika diisi
+                'expiry_date' => 'sometimes|date_format:Y-m-d\TH:i:s|after_or_equal:today', // Memastikan expiry_date adalah tanggal valid dan setelah submission_date jika diisi
             ]);
         
             // Jika validasi gagal, kembalikan respon error
@@ -375,6 +378,6 @@ class ApplicantController extends Controller
     //filter mobil ketika di klik ke filter //done
     //status mobil jadi dimunculinn   //done
     //checkbox user munculin semua //done
-    //tanggal buat vaidasi tanggal 
+    //tanggal buat vaidasi tanggal //done
     //descending subbmisiion date  //done
     //filter export excell    //done             

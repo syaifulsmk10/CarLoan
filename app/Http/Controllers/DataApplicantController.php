@@ -89,12 +89,15 @@ class DataApplicantController extends Controller
             // Dapatkan peminjam terakhir jika ada
             $lastApplicant = $Cars->applicants->first();
             $borrower = $lastApplicant ? $lastApplicant->user->FirstName . ' ' . $lastApplicant->user->LastName : 'Tidak Ada';
+            //belum bisa woooooooyyyyyyyyyyyyy
+            // $expirydate =  $Cars->applicants->expiry_date->first();
 
             $datacar[] = [
                 'id' => $Cars->id,
                 'name' => $Cars->name_car,
                 'status_name' => $Cars->status,
                 'borrowed_by' => $borrower,  // Tambahkan info peminjam terakhir
+                // 'expiry_date' => $expirydate,
                 'path' => $Cars->path ? env('APP_URL') . 'uploads/profiles/' . $Cars->path : null,
             ];
         }
