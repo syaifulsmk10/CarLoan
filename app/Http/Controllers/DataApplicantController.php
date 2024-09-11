@@ -84,7 +84,9 @@ $carsWithLatestApplicants = Car::with(['applicants' => function ($query) use ($l
         })
         ->where('status', 'Disetujui') // Ambil hanya applicant dengan status Disetujui
         ->orderBy('submission_date', 'desc'); // Urutkan berdasarkan submission date terbaru
-    }, 'applicants.user'])->get();
+    }, 'applicants.user'])
+    ->where('status', 'In Use') 
+    ->get();
 
 
         if (!$Car) {
