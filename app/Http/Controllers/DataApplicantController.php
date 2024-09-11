@@ -66,12 +66,7 @@ class DataApplicantController extends Controller
     
             // Ambil data mobil
             
-        $Car = Car::all();
-        if (!$Car) {
-            return response()->json([
-                'message' => "Car Not Found"
-            ]);
-        }
+      
 
         $latestApplicants = DB::table('applicants')
     ->select('car_id', DB::raw('MAX(submission_date) as latest_submission_date'))
@@ -87,34 +82,30 @@ $cars = Car::with(['applicants' => function ($query) use ($latestApplicants) {
     }, 'applicants.user'])->get();
 
 
-        if (!$Car) {
-            return response()->json([
-                'message' => "Car Not Found"
-            ]);
-        }
+       
 
         $datacar = [];
-        foreach ($cars as $Car) {
+        foreach ($cars as $car) {
             // Dapatkan peminjam terakhir jika ada
-            $lastApplicant = $Car->applicants->first();
+            $lastApplicant = $car->applicants->first();
             $borrower = $lastApplicant ? $lastApplicant->user->FirstName . ' ' . $lastApplicant->user->LastName : 'Tidak Ada';
             $expiry = $lastApplicant ? $lastApplicant->expiry_date : 'Tidak Ada';
 
             if($cars->status == "In Use"){
                 $datacar[] = [
-                    'id' => $Car->id,
-                    'name' => $Car->name_car,
-                    'status_name' => $Car->status,
+                    'id' => $car->id,
+                    'name' => $car->name_car,
+                    'status_name' => $car->status,
                     'borrowed_by' => $borrower,  // Tambahkan info peminjam terakhir
                     'expiry_date' => $expiry,
-                    'path' => $Car->path ? env('APP_URL') . 'uploads/profiles/' . $Car->path : null,
+                    'path' => $car->path ? env('APP_URL') . 'uploads/profiles/' . $car->path : null,
                 ];
             }  else{
                 $datacar[] = [
-                    'car_id' => $Car->id,
-                    'name_car' => $Car->name_car,
-                    'status' => $Car->status,
-                    'path' => $Car->path ? env('APP_URL') . 'uploads/profiles/' . $Car->path : null,
+                    'car_id' => $car->id,
+                    'name_car' => $car->name_car,
+                    'status' => $car->status,
+                    'path' => $car->path ? env('APP_URL') . 'uploads/profiles/' . $car->path : null,
                 ];
             }
 
