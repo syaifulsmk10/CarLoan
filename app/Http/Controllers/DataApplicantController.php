@@ -112,7 +112,7 @@ class DataApplicantController extends Controller
                     'email' => $applicant->user->email,
                     'car_id' => $applicant->car_id,
                     'car_name' =>    $applicant->car->name_car ,
-                    'path' => $applicant->user->path ? env('APP_URL') . 'uploads/profiles' . $applicant->user->path : null,
+                    'path' => $applicant->user->path ? env('APP_URL') . 'uploads/profiles/' . $applicant->user->path : null,
                     'purpose' => $applicant->purpose,
                     'submission_date' => $applicant->submission_date,
                     'expiry_date' => $applicant->expiry_date,
