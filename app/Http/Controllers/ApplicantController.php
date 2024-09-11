@@ -73,8 +73,13 @@ $cars = Car::with(['applicants' => function ($query) use ($latestApplicants) {
         foreach ($cars as $car) {
             // Dapatkan peminjam terakhir jika ada
             $lastApplicant = $car->applicants->first();
-            $borrower = $lastApplicant ? $lastApplicant->user->FirstName . ' ' . $lastApplicant->user->LastName : 'Tidak Ada';
             $expiry = $lastApplicant ? $lastApplicant->expiry_date : 'Tidak Ada';
+
+            if ($lastApplicant && $lastApplicant->status == "In use") {
+                $borrower = $lastApplicant->user->FirstName . ' ' . $lastApplicant->user->LastName;
+            } else {
+                $borrower = 'Tidak Ada';
+            }
 
             if($car->status == "In Use"){
                 $datacar[] = [
