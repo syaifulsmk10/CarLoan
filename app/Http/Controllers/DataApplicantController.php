@@ -100,6 +100,8 @@ class DataApplicantController extends Controller
             'path' => $car->path ? env('APP_URL') . 'uploads/profiles/' . $car->path : null,
         ];
     }
+
+    dd($datacar);
     
     
             $applicants = $applicantQuery->get()->transform(function ($applicant) {
