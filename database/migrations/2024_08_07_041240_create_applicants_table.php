@@ -19,7 +19,6 @@ return new class extends Migration
                 $table->dateTime('submission_date');
                 $table->dateTime('expiry_date');
                 $table->enum('status', ['Belum Disetujui', 'Disetujui', 'DiTolak']);
-                $table->text('notes')->nullable();
                 $table->dateTime('accepted_at')->nullable();
                 $table->dateTime('denied_at')->nullable();
                 $table->dateTime('delete_admin')->nullable();

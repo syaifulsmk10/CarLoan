@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminApplicantApproval;
+use App\Models\AdminCar;
 use App\Models\Applicant;
 use App\Models\Car;
 use Illuminate\Http\Request;
@@ -16,124 +18,116 @@ class ApplicantController extends Controller
      */
     public function index(Request $request)
     {
-        if(Auth::user()->role->id == 2){
+        if (Auth::user()->role->id == 2) {
             $applicantQuery = Applicant::where('user_id', Auth::user()->id)
-            ->orderBy('submission_date', 'asc');
-    
+                ->orderBy('submission_date', 'asc');
     
             $search = $request->input('search');
-            $applicantQuery->where(function ($q) use ($search) {
-                $q->where('purpose', 'LIKE', "%{$search}%")
-                    ->orWhere('notes', 'LIKE', "%{$search}%");
-            });
-
-
-    if ($request->has('status')) {
-        $status = $request->input('status');
-        if (is_array($status)) {
-            $applicantQuery->whereIn('status', $status);
-        } else {
-            $applicantQuery->where('status', $status);
-        }
-    }
-    if ($request->has('car_id')) {
-        $carId = $request->input('car_id');
-        $applicantQuery->where('car_id', $carId);
-    }
-
-    if ($request->has('start_date') && $request->has('end_date')) {
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
-        $applicantQuery->whereBetween('submission_date', [$startDate, $endDate]);
-    }
-
-    $applicant = $applicantQuery->get(); 
-
-    $perpage = $request->input("per_page",  5);
-    $applicant = $applicantQuery->paginate($perpage);
-    $totalpage = $applicant->lastPage();
-
-    $latestApplicants = DB::table('applicants')
-    ->select('car_id', DB::raw('MAX(submission_date) as latest_submission_date'))
-    ->groupBy('car_id');
-
-$cars = Car::with(['applicants' => function ($query) use ($latestApplicants) {
-        $query->joinSub($latestApplicants, 'latest', function ($join) {
-            $join->on('applicants.car_id', '=', 'latest.car_id')
-                 ->on('applicants.submission_date', '=', 'latest.latest_submission_date');
-        })
-        ->where('status', 'Disetujui') // Ambil hanya applicant dengan status Disetujui
-        ->orderBy('submission_date', 'desc'); // Urutkan berdasarkan submission date terbaru
-    }, 'applicants.user'])->get();
-
-
-       
-
-        $datacar = [];
-        foreach ($cars as $car) {
-            // Dapatkan peminjam terakhir jika ada
-            $lastApplicant = $car->applicants->first();
-            $borrower = $lastApplicant ? $lastApplicant->user->FirstName . ' ' . $lastApplicant->user->LastName : 'Tidak Ada';
-            $expiry = $lastApplicant ? $lastApplicant->expiry_date : 'Tidak Ada';
-
-            if($car->status == "In Use"){
+            if ($search) {
+                $applicantQuery->where(function ($q) use ($search) {
+                    $q->where('purpose', 'LIKE', "%{$search}%")
+                        ->orWhereHas('adminApplicantApprovals', function ($query) use ($search) {
+                            $query->where('notes', 'LIKE', "%{$search}%");
+                        });
+                });
+            }
+    
+            if ($request->has('status')) {
+                $status = $request->input('status');
+                if (is_array($status)) {
+                    $applicantQuery->whereIn('status', $status);
+                } else {
+                    $applicantQuery->where('status', $status);
+                }
+            }
+    
+            if ($request->has('car_id') && $request->input('car_id') !== null) {
+                $carId = $request->input('car_id');
+                $applicantQuery->where('car_id', $carId);
+            }
+    
+            if ($request->has('start_date') && $request->has('end_date')) {
+                $startDate = $request->input('start_date');
+                $endDate = $request->input('end_date');
+                $applicantQuery->whereBetween('submission_date', [$startDate, $endDate]);
+            }
+    
+            $perpage = $request->input("per_page", 5);
+            $applicants = $applicantQuery->paginate($perpage);
+            $totalpage = $applicants->lastPage();
+    
+            $latestApplicants = DB::table('applicants')
+                ->select('car_id', DB::raw('MAX(submission_date) as latest_submission_date'))
+                ->groupBy('car_id');
+    
+            $cars = Car::with(['applicants' => function ($query) use ($latestApplicants) {
+                $query->joinSub($latestApplicants, 'latest', function ($join) {
+                    $join->on('applicants.car_id', '=', 'latest.car_id')
+                         ->on('applicants.submission_date', '=', 'latest.latest_submission_date');
+                })
+                ->where('status', 'Disetujui')
+                ->orderBy('submission_date', 'desc');
+            }, 'applicants.user'])->get();
+    
+            $datacar = [];
+            foreach ($cars as $car) {
+                $lastApplicant = $car->applicants->first();
+                $borrower = $lastApplicant ? $lastApplicant->user->FirstName . ' ' . $lastApplicant->user->LastName : 'Tidak Ada';
+                $expiry = $lastApplicant ? $lastApplicant->expiry_date : 'Tidak Ada';
+    
                 $datacar[] = [
                     'id' => $car->id,
                     'name' => $car->name_car,
                     'status_name' => $car->status,
-                    'borrowed_by' => $borrower,  // Tambahkan info peminjam terakhir
+                    'borrowed_by' => $borrower,
                     'expiry_date' => $expiry,
                     'path' => $car->path ? env('APP_URL') . 'uploads/profiles/' . $car->path : null,
                 ];
-            }  else{
-                $datacar[] = [
-                    'car_id' => $car->id,
-                    'name' => $car->name_car,
-                    'status_name' => $car->status,
-                    'borrowed_by' => "Tidak Ada",  
-                    'path' => $car->path ? env('APP_URL') . 'uploads/profiles/' . $car->path : null,
-                ];
             }
-
-           
-        }
-
-        $applicants = $applicantQuery->get()->transform(function ($applicant) {
-            return [
-                'id' => $applicant->id,
-                'user_id' => $applicant->user_id,
-                'name' => $applicant->user->FirstName . ' ' . $applicant->user->LastName,
-                'email' => $applicant->user->email,
-                'car_id' => $applicant->car_id,
-                'car_name' =>    $applicant->car->name_car,
-                'path' => $applicant->user->path ? env('APP_URL') . 'uploads/profiles' . $applicant->user->path : null,
-                'purpose' => $applicant->purpose,
-                'submission_date' => $applicant->submission_date,
-                'expiry_date' => $applicant->expiry_date,
-                'status' => $applicant->status,
-                'notes' => $applicant->notes,
-            ];
-        });
-
-     
-
-        return response()->json([
-            'car' => $datacar,
-            'Applicant' => $applicants,
-            'total_page' => $totalpage,
-            
-
-        ], 200);
-
-        }else{
+    
+            $applicantsData = $applicants->getCollection()->transform(function ($applicant) {
+                $approvals = DB::table('admin_applicant_approvals')
+                    ->where('applicant_id', $applicant->id)
+                    ->get()
+                    ->mapWithKeys(function ($approval) {
+                        return [
+                                'id' => $approval->id,
+                                'user_id' => $approval->user_id,
+                                'approval_status' => $approval->approval_status,
+                                'notes' => $approval->notes,
+                            
+                        ];
+                    });
+    
+                return [
+                    'id' => $applicant->id,
+                    'user_id' => $applicant->user_id,
+                    'name' => $applicant->user->FirstName . ' ' . $applicant->user->LastName,
+                    'email' => $applicant->user->email,
+                    'car_id' => $applicant->car_id,
+                    'car_name' => $applicant->car->name_car,
+                    'path' => $applicant->user->path ? env('APP_URL') . 'uploads/profiles' . $applicant->user->path : null,
+                    'purpose' => $applicant->purpose,
+                    'submission_date' => $applicant->submission_date,
+                    'expiry_date' => $applicant->expiry_date,
+                    'status' => $applicant->status,
+                    'notes' => $applicant->notes,
+                    'approvals' => $approvals,
+                ];
+            });
+    
+            return response()->json([
+                'car' => $datacar,
+                'Applicant' => $applicantsData,
+                'total_page' => $totalpage,
+            ], 200);
+        } else {
             return response()->json([
                 "message" => "Your Login Not user"
             ]);
         }
-        
-
     }
-
+    
     /**
      * Show the form for creating a new resource.
      */
@@ -170,6 +164,17 @@ $cars = Car::with(['applicants' => function ($query) use ($latestApplicants) {
                 
                         $car->status = 'Pending';
                         $car->save();
+
+                        $admins = AdminCar::where('car_id', $request->car_id)->get();
+
+                        // Buat record approval status untuk setiap admin terkait mobil
+                        foreach ($admins as $admin) {
+                            AdminApplicantApproval::create([
+                                'user_id' => $admin->user_id,
+                                'applicant_id' => $applicant->id,
+                                'approval_status' => 'Pending',
+                            ]);
+                        }
                 
                         return response()->json([
                             'message' => "create applicant sucessfulluy"
@@ -179,6 +184,10 @@ $cars = Car::with(['applicants' => function ($query) use ($latestApplicants) {
                             'message' => "create applicant failed"
                         ], 400);
                     }
+                }else{
+                    return response()->json([
+                        'message' => "Car not found"
+                    ], 404);
                 }
         
         }else{
@@ -333,26 +342,42 @@ $cars = Car::with(['applicants' => function ($query) use ($latestApplicants) {
     
         
     
-        public function detail($id){
-            // Temukan pelamar dengan ID dan pastikan pelamar milik pengguna yang sedang login
-            if(Auth::user()->role->id == 2){
-                $applicant = Applicant::with(['user', 'car'])
+    public function detail($id)
+    {
+        // Temukan pelamar dengan ID dan pastikan pelamar milik pengguna yang sedang login
+        if (Auth::user()->role->id == 2) {
+            $applicant = Applicant::with(['user', 'car'])
                 ->where('id', $id)
                 ->where('user_id', Auth::user()->id)
                 ->first();
-        
+    
             // Periksa apakah pelamar ditemukan
             if (!$applicant) {
                 return response()->json([
                     'message' => "Applicant Not Found"
                 ], 404);
             }
-        
+    
+            // Ambil informasi persetujuan admin untuk pelamar ini
+            $approvals = DB::table('admin_applicant_approvals')
+                ->where('applicant_id', $applicant->id)
+                ->get()
+                ->mapWithKeys(function ($approval) {
+                    return [
+                       
+                            'id' => $approval->id,
+                                'user_id' => $approval->user_id,
+                                'approval_status' => $approval->approval_status,
+                                'notes' => $approval->notes,
+                        
+                    ];
+                });
+    
             // Format data pelamar
             $dataApplicant = [
                 'id' => $applicant->id,
-                'user_id' => $applicant->user_id,  
-                'name' => $applicant->user->FirstName . ' ' . $applicant->user->LastName, 
+                'user_id' => $applicant->user_id,
+                'name' => $applicant->user->FirstName . ' ' . $applicant->user->LastName,
                 'email' => $applicant->user->email,
                 'car' => [
                     'id' => $applicant->car->id,
@@ -360,27 +385,25 @@ $cars = Car::with(['applicants' => function ($query) use ($latestApplicants) {
                     'status_name' => $applicant->car->status,
                     'path' => $applicant->car->path ? env('APP_URL') . 'uploads/profiles/' . $applicant->car->path : null,
                 ],
-                'path' => $applicant->user->path ? env('APP_URL') . 'uploads/profiles/' . $applicant->user->path : null,  
+                'path' => $applicant->user->path ? env('APP_URL') . 'uploads/profiles/' . $applicant->user->path : null,
                 'purpose' => $applicant->purpose,
                 'submission_date' => $applicant->submission_date,
                 'expiry_date' => $applicant->expiry_date,
                 'status' => $applicant->status,
                 'notes' => $applicant->notes,
+                'approvals' => $approvals,
             ];
-        
+    
             return response()->json([
                 'dataApplicant' => $dataApplicant
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 "message" => "Your Login Not user"
             ]);
         }
-            }
-         
-    } 
-
-
+    }
+}    
 
     //mbilnya tambah status yang pinjem siapa //done
     //filter mobil ketika di klik ke filter //done

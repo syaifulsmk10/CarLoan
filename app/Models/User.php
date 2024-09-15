@@ -61,6 +61,19 @@ class User extends Authenticatable
         return $this->hasMany(Applicant::class);
     }
     
+    public function adminCars()
+    {
+        return $this->hasMany(AdminCar::class);
+    }
+
+    /**
+     * Mendapatkan approvals yang diberikan oleh user ini.
+     */
+    public function adminApprovals()
+    {
+        return $this->hasMany(AdminApplicantApproval::class, 'user_id');
+    }
+
     public function getImageAttribute($value)
         {
             return env('APP_URL') . $value;

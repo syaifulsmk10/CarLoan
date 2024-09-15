@@ -3,6 +3,9 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\AdminApplicantApproval;
+use App\Models\AdminCar;
 use Illuminate\Database\Seeder;
 use App\Models\Role;
 use App\Models\User;
@@ -41,6 +44,15 @@ class DatabaseSeeder extends Seeder
         "path" => "https://media.istockphoto.com/id/493855843/photo/sleepy-ocelot-close-up.webp?a=1&b=1&s=612x612&w=0&k=20&c=llA_ImCMavNJJisPzjK8-3FYrqtRk9EDr2qaDeBRC3s="
     ]);
 
+    User::create([
+        'FirstName' => 'admin',
+        'LastName' => 'Dani',
+        "email" => "admin@dani.com",
+        "password" => bcrypt("dani_password"),
+        "role_id" => 1, // Menggunakan role_id
+        "path" => "https://media.istockphoto.com/id/493855843/photo/sleepy-ocelot-close-up.webp?a=1&b=1&s=612x612&w=0&k=20&c=llA_ImCMavNJJisPzjK8-3FYrqtRk9EDr2qaDeBRC3s="
+    ]);
+
     // Siswa
     User::create([
         'FirstName' => 'user',
@@ -50,8 +62,6 @@ class DatabaseSeeder extends Seeder
         "role_id" => 2, // Menggunakan role_id
         "path" => "user.png"
     ]);
-
-   
 
     Car::create([
         'name_car' => 'Toyota Corolla',
@@ -67,23 +77,50 @@ class DatabaseSeeder extends Seeder
 
     Applicant::create([
         'car_id' => 1, 
-        'user_id' => 1, 
+        'user_id' => 3, 
         'purpose' => 'Personal use',
         'submission_date' => '2024-08-01',
         'expiry_date' => '2025-08-01',
         'status' => 'Disetujui',
-        'notes' => 'First-time applicant',
     ]);
 
     Applicant::create([
         'car_id' => 2, 
-        'user_id' => 2, 
+        'user_id' => 3, 
         'purpose' => 'Business use',
         'submission_date' => '2024-08-02',
         'expiry_date' => '2025-08-02',
         'status' => 'Disetujui',
-        'notes' => 'Frequent applicant',
     ]);
+
+    AdminCar::create([
+        'user_id' => 1,
+        'car_id' => 1,
+    ]);
+
+    AdminCar::create([
+        'user_id' => 2,
+        'car_id' => 1,
+    ]);
+
+    AdminCar::create([
+        'user_id' => 1,
+        'car_id' => 2,
+    ]);
+
+    // AdminCar::create([
+    //     'user_id' => 2,
+    //     'car_id' => 3,
+    // ]);
+
+    AdminApplicantApproval::create([
+        'user_id' => 2,
+        'applicant_id' => 2,
+        'approval_status' => 'Approved',
+        'notes' => 'tidak ada'
+    ]);
+
+  
 
 
 

@@ -19,7 +19,8 @@ class Applicant extends Model
         'denied_at',
         'delete_admin',
         'delete_user',
-        'notes',
+        'approved_by_admin1',
+        'approved_by_admin2'
     ];
 
 
@@ -32,6 +33,11 @@ class Applicant extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function adminApplicantApprovals()
+    {
+        return $this->hasMany(AdminApplicantApproval::class);
     }
     
     public function getImageAttribute($value)

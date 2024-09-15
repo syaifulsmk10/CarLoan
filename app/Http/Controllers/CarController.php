@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Models\AdminCar;
 use Illuminate\Http\Request;
 use App\Models\Car;
 use App\Models\User;
@@ -16,51 +16,52 @@ class CarController extends Controller
      * Display a listing of the resource.
      */
     public function getCar()
-    {
-        if(Auth::user()->role->id == 1 || Auth::user()->role->id == 2 ){
-            $Car = Car::whereIn('status', ['Available', 'Pending', 'In Use'])->get();
-            if (!$Car) {
-                return response()->json([
-                    'message' => "Car Not Found"
-                ]);
-            }
-    
-    
-            $dataCar = [];
-            foreach($Car as $Cars){
-                $datacar[] = [
-                    'id' => $Cars->id,
-                    'name' => $Cars->name_car,  
-                    'status_name' =>  $Cars->status ,
-                    'path' => $Cars->path ? env('APP_URL') . 'uploads/profiles/' . $Cars->path : null,  
-                ];
-    
-            }
-    
-         
-    
-            return response()->json([
-                'data' => $datacar,
-    
-            ], 200);
-        }else{
-            return response()->json([
-                "message" => "Your Login Not Admin"
-            ]);
-        }
-       
+{
+    // Ambil semua mobil beserta admin yang memiliki mobil tersebut
+    $cars = Car::with('adminCars.user')->get(); // Mengambil mobil beserta admin yang terkait
+
+    if ($cars->isEmpty()) {
+        return response()->json([
+            'message' => 'No cars found',
+        ], 404);
     }
+
+    // Format data untuk response
+    $data = $cars->map(function ($car) {
+        return [
+            'id' => $car->id,
+            'name' => $car->name_car,
+            'status' => $car->status,
+            'path' => $car->path ? env('APP_URL') . 'uploads/profiles/' . $car->path : null,
+            'admins' => $car->adminCars->map(function ($adminCar) {
+                return [
+                    'admin_id' => $adminCar->user_id,
+                    'admin_name' => $adminCar->user->FirstName . ' ' . $adminCar->user->LastName,
+                ];
+            }),
+        ];
+    });
+
+    return response()->json([
+        'data' => $data,
+    ], 200);
+}
+
 
     /**
      * Show the form for creating a new resource.
      */
     public function create(Request $request)
-    {   
-        if(Auth::user()->role->id == 1){
+    {
+        // Periksa apakah user adalah super admin (role id 1) atau admin lain (role id 2)
+        if (in_array(Auth::user()->role->id, [1, 2])) {
+            
             $validator = Validator::make($request->all(), [
-                'status' => 'required|string|max:255',
+                'status' => 'required|string|in:Available,Pending,In Use,Maintenance,Denied', // Validasi status tertentu
                 'name_car' => 'required|string|max:255',
-                'path' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi file gambar
+                'path' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi gambar
+                'user_ids' => 'required|array', // Daftar ID admin
+                'user_ids.*' => 'exists:users,id', // Validasi ID admin ada di tabel users
             ]);
         
             if ($validator->fails()) {
@@ -69,32 +70,42 @@ class CarController extends Controller
                 ], 422);
             }
     
+            // Membuat mobil baru di tabel Cars
             $Car = Car::create([
                 'status' => $request->status,
                 'name_car' => $request->name_car,
             ]);
           
+            // Proses file gambar jika di-upload
             if ($request->hasFile('path')) {
                 $image = $request->file('path');
                 $imageName = 'VA' . Str::random(40) . '.' . $image->getClientOriginalName();
                 $image->move(public_path('uploads/profiles'), $imageName);
-                $imagePath = $imageName; // Store the image path
+                $Car->update([
+                    'path' => $imageName,
+                ]);
             }
-        
-            // Update user with image path
-            $Car->update([
-                'path' => $imagePath,
-            ]);
-        
+    
+            // Simpan hubungan antara admin (user) dan mobil di tabel admin_cars menggunakan model AdminCar
+            foreach ($request->user_ids as $adminId) {
+                AdminCar::create([
+                    'user_id' => $adminId, // ID admin yang memiliki mobil
+                    'car_id' => $Car->id, // ID mobil yang baru saja dibuat
+                ]);
+            }
+    
             return response()->json([
-                'message' => 'User created successfully',
-            ], 200);
-        }else{
+                'message' => 'Car created successfully and assigned to admins',
+                'car' => $Car,
+            ], 201);
+    
+        } else {
             return response()->json([
                 "message" => "Your Login Not Admin"
-            ]);
+            ], 403);
         }
     }
+    
 
     /**
      * Store a newly created resource in storage.
@@ -124,91 +135,115 @@ class CarController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, $id)
-    {
-        if(Auth::user()->role->id == 1){
-            $validator = Validator::make($request->all(), [
-                'status' => 'sometimes|string|max:255',
-                'name_car' => 'sometimes|string|max:255',
-                'path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi file gambar
-            ]);
-            //tess
+{
+    // Periksa apakah user adalah super admin (role id 1) atau admin lain (role id 2)
+    if (in_array(Auth::user()->role->id, [1, 2])) {
         
-            if ($validator->fails()) {
-                return response()->json([
-                    'errors' => $validator->errors(),
-                ], 422);
-            }
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'status' => 'sometimes|string|in:Available,Pending,In Use,Maintenance,Denied', // Validasi status tertentu
+            'name_car' => 'sometimes|string|max:255',
+            'path' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi gambar
+            'user_ids' => 'sometimes|array', // Daftar ID admin
+            'user_ids.*' => 'exists:users,id', // Validasi ID admin ada di tabel users
+        ]);
     
-            $Car = Car::findOrFail($id);
-    
-            if ($request->status) {
-                $Car->status = $request->status;
-            }
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
 
-            if ($request->name_car) {
-                $Car->name_car = $request->name_car;
-            }
+        // Cari mobil berdasarkan ID
+        $Car = Car::find($id);
+        
+        if (!$Car) {
+            return response()->json([
+                'message' => 'Car not found',
+            ], 404);
+        }
 
-            $Car->save();
-        
-            if ($request->hasFile('path')) {
-                if ($Car->path && file_exists(public_path('uploads/profiles/' . $Car->path))) {
-                    unlink(public_path('uploads/profiles/' . $Car->path));
-                }
-        
-                $image = $request->file('path');
-                $imageName = 'VA' . Str::random(40) . '.' . $image->getClientOriginalName();
-                $image->move(public_path('uploads/profiles'), $imageName);
-        
-                $Car->update([
-                    'path' => $imageName,
+        // Perbarui informasi mobil jika ada
+        if ($request->has('status')) {
+            $Car->status = $request->status;
+        }
+
+        if ($request->has('name_car')) {
+            $Car->name_car = $request->name_car;
+        }
+
+        // Proses file gambar jika di-upload
+        if ($request->hasFile('path')) {
+            $image = $request->file('path');
+            $imageName = 'VA' . Str::random(40) . '.' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/profiles'), $imageName);
+            $Car->path = $imageName;
+        }
+
+        // Simpan perubahan
+        $Car->save();
+
+        // Hapus hubungan lama antara mobil dan admin
+        AdminCar::where('car_id', $Car->id)->delete();
+
+        // Simpan hubungan baru antara admin (user) dan mobil di tabel admin_cars
+        if ($request->has('user_ids')) {
+            foreach ($request->user_ids as $adminId) {
+                AdminCar::create([
+                    'user_id' => $adminId, // ID admin yang memiliki mobil
+                    'car_id' => $Car->id, // ID mobil yang baru saja diperbarui
                 ]);
             }
-        
-            return response()->json([
-                'message' => 'Car updated successfully',
-            ], 200);
-        }else{
-            return response()->json([
-                "message" => "Your Login Not Admin"
-            ]);
         }
-       
+
+        return response()->json([
+            'message' => 'Car updated successfully',
+            'car' => $Car,
+        ], 200);
+
+    } else {
+        return response()->json([
+            "message" => "Your Login Not Admin"
+        ], 403);
     }
+}
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function deleteCar($id)
+    public function destroy($id)
     {
-        if(Auth::user()->role->id == 1){
-            $Car = Car::findOrFail($id);
-
-            if (!$Car) {
+        // Periksa apakah user adalah super admin (role id 1) atau admin lain (role id 2)
+        if (in_array(Auth::user()->role->id, [1, 2])) {
+            
+            // Temukan mobil berdasarkan ID
+            $car = Car::find($id);
+    
+            // Jika mobil tidak ditemukan, kembalikan respon error
+            if (!$car) {
                 return response()->json([
-                    'message' => "Car Not Found"
+                    'message' => 'Car not found'
                 ], 404);
             }
     
-            // Delete image if exists
-            if ($Car->path && file_exists(public_path('uploads/profiles/' . $Car->path))) {
-                unlink(public_path('uploads/profiles/' . $Car->path));
-            }
-        
-            // Delete the car record
-            $Car->delete();
-        
+            // Hapus hubungan antara mobil dan admin
+            AdminCar::where('car_id', $id)->delete();
+    
+            // Hapus mobil dari tabel Cars
+            $car->delete();
+    
             return response()->json([
-                'message' => 'Car deleted successfully',
+                'message' => 'Car deleted successfully'
             ], 200);
-        }else{
+    
+        } else {
             return response()->json([
                 "message" => "Your Login Not Admin"
-            ]);
+            ], 403);
         }
-     
-        
     }
+    
     public function navbar() {
         if(Auth::user()->role->id == 1 || Auth::user()->role_id == 2){
             $user = User::with('role')->where("id", Auth::user()->id)->first();

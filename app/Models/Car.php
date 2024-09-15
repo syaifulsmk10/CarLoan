@@ -18,6 +18,11 @@ class Car extends Model
     {
         return $this->hasMany(Applicant::class);
     }
+
+    public function adminCars()
+    {
+        return $this->hasMany(AdminCar::class);
+    }
     
     public function getImageAttribute($value)
         {
