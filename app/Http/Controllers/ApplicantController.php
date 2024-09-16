@@ -86,16 +86,17 @@ class ApplicantController extends Controller
             }
     
             $applicantsData = $applicants->getCollection()->transform(function ($applicant) {
-                $approvals = DB::table('admin_applicant_approvals')
+                // Ambil semua persetujuan terkait aplikasi ini
+                $approvals = AdminApplicantApproval::with('user')
                     ->where('applicant_id', $applicant->id)
                     ->get()
-                    ->mapWithKeys(function ($approval) {
+                    ->map(function ($approval) {
                         return [
-                                'id' => $approval->id,
-                                'user_id' => $approval->user_id,
-                                'approval_status' => $approval->approval_status,
-                                'notes' => $approval->notes,
-                            
+                            'id' => $approval->id,
+                            'user_id' => $approval->user_id,
+                            'admin_name' => $approval->user->FirstName . ' ' . $approval->user->LastName,
+                            'approval_status' => $approval->approval_status,
+                            'notes' => $approval->notes,
                         ];
                     });
     

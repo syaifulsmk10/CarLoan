@@ -17,7 +17,57 @@ class ApplicantsExport implements FromCollection, WithHeadings
 
     public function collection()
     {
-        return $this->applicants;
+        $formattedData = collect($this->applicants)->flatMap(function ($applicant) {
+            $adminApprovals = $applicant['admin_approvals'];
+
+            // Jika tidak ada admin approvals, return data applicant tanpa admin approval
+            if ($adminApprovals->isEmpty()) {
+                return collect([
+                    [
+                        $applicant['id'],
+                        $applicant['user_id'],
+                        $applicant['name'],
+                        $applicant['email'],
+                        $applicant['car_id'],
+                        $applicant['car_name'],
+                        $applicant['path'],
+                        $applicant['purpose'],
+                        $applicant['submission_date'],
+                        $applicant['expiry_date'],
+                        $applicant['status'],
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                    ]
+                ]);
+            }
+
+            // Jika ada admin approvals, buat satu baris per admin approval
+            return $adminApprovals->map(function ($approval) use ($applicant) {
+                return [
+                    $applicant['id'],
+                    $applicant['user_id'],
+                    $applicant['name'],
+                    $applicant['email'],
+                    $applicant['car_id'],
+                    $applicant['car_name'],
+                    $applicant['path'],
+                    $applicant['purpose'],
+                    $applicant['submission_date'],
+                    $applicant['expiry_date'],
+                    $applicant['status'],
+                    $approval['id'],
+                    $approval['user_id'],
+                    $approval['admin_name'], // Admin name added here
+                    $approval['approval_status'],
+                    $approval['notes'],
+                ];
+            });
+        });
+
+        return $formattedData;
     }
 
     public function headings(): array
@@ -34,7 +84,12 @@ class ApplicantsExport implements FromCollection, WithHeadings
             'Submission Date',
             'Expiry Date',
             'Status',
-            'Notes',
+            'Admin Approval ID',
+            'Admin Approval User ID',
+            'Admin Approval User Name', // Header for admin name
+            'Admin Approval Status',
+            'Admin Approval Notes',
         ];
     }
+
 }

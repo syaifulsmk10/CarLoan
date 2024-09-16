@@ -118,15 +118,15 @@ class DataApplicantController extends Controller
             }
     
             $applicants = $applicantQuery->get()->transform(function ($applicant) {
-                $adminApprovals = $applicant->adminApplicantApprovals->mapWithKeys(function ($approval) {
+                $adminApprovals = $applicant->adminApplicantApprovals->map(function ($approval) {
                     return [
-                       'id' => $approval->id,
+                        'id' => $approval->id,
                         'user_id' => $approval->user_id,
                         'approval_status' => $approval->approval_status,
                         'notes' => $approval->notes,
+                        'admin_name' => $approval->user ? $approval->user->FirstName . ' ' . $approval->user->LastName : 'Tidak Diketahui',
                     ];
                 });
-    
                 return [
                     'id' => $applicant->id,
                     'user_id' => $applicant->user_id,
@@ -138,9 +138,7 @@ class DataApplicantController extends Controller
                     'purpose' => $applicant->purpose,
                     'submission_date' => $applicant->submission_date,
                     'expiry_date' => $applicant->expiry_date,
-                    'status_admin' => $adminApprovals->get(Auth::id(), ['approval_status' => 'Selesai'])['approval_status'],
                     'status' => $applicant->status,
-                    'notes' => $adminApprovals->get(Auth::id(), ['notes' => 'Tidak Ada'])['notes'],
                     'admin_approvals' => $adminApprovals
                 ];
             });
