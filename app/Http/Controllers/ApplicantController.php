@@ -65,8 +65,8 @@ class ApplicantController extends Controller
                     $join->on('applicants.car_id', '=', 'latest.car_id')
                          ->on('applicants.submission_date', '=', 'latest.latest_submission_date');
                 })
-                ->where('status', 'Disetujui')
-                ->orderBy('submission_date', 'desc');
+                ->where('status', 'Process')
+                ->orderBy('accepted_at', 'desc');
             }, 'applicants.user'])->get();
     
             $datacar = [];
@@ -160,7 +160,7 @@ class ApplicantController extends Controller
                             'purpose' => $request->purpose,
                             'submission_date' => $request->submission_date,
                             'expiry_date' => $request->expiry_date,
-                            'status' => "Belum Disetujui"
+                            'status' => "Pending"
                         ]);
                 
                         $car->status = 'Pending';
@@ -233,7 +233,7 @@ class ApplicantController extends Controller
                 ], 422);
             }
         
-                $applicant = Applicant::where('user_id', Auth::user()->id)->where('id', $id)->where('status', 'Belum Disetujui')->first();
+                $applicant = Applicant::where('user_id', Auth::user()->id)->where('id', $id)->where('status', 'Pending')->first();
         
                 if (!$applicant) {
                     return response()->json([
@@ -246,12 +246,12 @@ class ApplicantController extends Controller
             
                 if ($request->has('car_id')) {
 
-                    if ($applicant->status == "Belum Disetujui" &&  $newCar->status == 'In Use') {
+                    if ($applicant->status == "Pending" &&  $newCar->status == 'In Use') {
                         return response()->json([
                             "message" => "Car In use"
                         ]);
                     }
-                    if ($applicant->status == "Belum Disetujui" && ($newCar->status == 'Available' || $oldCar->status == 'Pending')) {
+                    if ($applicant->status == "Pending" && ($newCar->status == 'Available' || $oldCar->status == 'Pending')) {
                         if (!$newCar) {
                             return response()->json(['message' => 'New car status invalid.'], 400);
                         }
@@ -315,7 +315,7 @@ class ApplicantController extends Controller
             }
     
             $Car = Car::find($applicant->car_id);
-            if ($applicant->status == "Belum Disetujui") {
+            if ($applicant->status == "Pending") {
                 $applicant->delete();
                if($Car){
                 $Car->update([
@@ -326,7 +326,7 @@ class ApplicantController extends Controller
                     "message" =>  "Applicant Delete successfully",
                 ]);
     
-            }elseif ($applicant->status == "Disetujui" || $applicant->status == "DiTolak") {
+            }elseif ($applicant->status == "Process" || $applicant->status == "Rejected") {
                  $applicant->delete();
             }else {
                 return response()->json([

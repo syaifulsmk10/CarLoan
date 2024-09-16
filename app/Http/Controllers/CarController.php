@@ -212,7 +212,7 @@ class CarController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function deleteCar($id)
     {
         // Periksa apakah user adalah super admin (role id 1) atau admin lain (role id 2)
         if (in_array(Auth::user()->role->id, [1, 2])) {

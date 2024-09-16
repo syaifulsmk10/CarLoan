@@ -63,62 +63,62 @@ class DatabaseSeeder extends Seeder
         "path" => "user.png"
     ]);
 
-    Car::create([
-        'name_car' => 'Toyota Corolla',
-        'status' => 'Available',
-        'path' => 'images/toyota_corolla.jpg',
-    ]);
+    // Car::create([
+    //     'name_car' => 'Toyota Corolla',
+    //     'status' => 'Available',
+    //     'path' => 'images/toyota_corolla.jpg',
+    // ]);
 
-    Car::create([
-        'name_car' => 'Honda Civic',
-        'status' => 'Available',
-        'path' => 'images/honda_civic.jpg',
-    ]);
+    // Car::create([
+    //     'name_car' => 'Honda Civic',
+    //     'status' => 'Available',
+    //     'path' => 'images/honda_civic.jpg',
+    // ]);
 
-    Applicant::create([
-        'car_id' => 1, 
-        'user_id' => 3, 
-        'purpose' => 'Personal use',
-        'submission_date' => '2024-08-01',
-        'expiry_date' => '2025-08-01',
-        'status' => 'Disetujui',
-    ]);
+    // Applicant::create([
+    //     'car_id' => 1, 
+    //     'user_id' => 3, 
+    //     'purpose' => 'Personal use',
+    //     'submission_date' => '2024-08-01',
+    //     'expiry_date' => '2025-08-01',
+    //     'status' => 'Proses',
+    // ]);
 
-    Applicant::create([
-        'car_id' => 2, 
-        'user_id' => 3, 
-        'purpose' => 'Business use',
-        'submission_date' => '2024-08-02',
-        'expiry_date' => '2025-08-02',
-        'status' => 'Disetujui',
-    ]);
+    // Applicant::create([
+    //     'car_id' => 2, 
+    //     'user_id' => 3, 
+    //     'purpose' => 'Business use',
+    //     'submission_date' => '2024-08-02',
+    //     'expiry_date' => '2025-08-02',
+    //     'status' => 'Proses',
+    // ]);
 
-    AdminCar::create([
-        'user_id' => 1,
-        'car_id' => 1,
-    ]);
+    // AdminCar::create([
+    //     'user_id' => 1,
+    //     'car_id' => 1,
+    // ]);
 
-    AdminCar::create([
-        'user_id' => 2,
-        'car_id' => 1,
-    ]);
+    // AdminCar::create([
+    //     'user_id' => 2,
+    //     'car_id' => 1,
+    // ]);
 
-    AdminCar::create([
-        'user_id' => 1,
-        'car_id' => 2,
-    ]);
+    // AdminCar::create([
+    //     'user_id' => 1,
+    //     'car_id' => 2,
+    // ]);
 
     // AdminCar::create([
     //     'user_id' => 2,
     //     'car_id' => 3,
     // ]);
 
-    AdminApplicantApproval::create([
-        'user_id' => 2,
-        'applicant_id' => 2,
-        'approval_status' => 'Approved',
-        'notes' => 'tidak ada'
-    ]);
+    // AdminApplicantApproval::create([
+    //     'user_id' => 2,
+    //     'applicant_id' => 2,
+    //     'approval_status' => 'Approved',
+    //     'notes' => 'tidak ada'
+    // ]);
 
   
 

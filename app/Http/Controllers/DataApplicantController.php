@@ -83,7 +83,7 @@ class DataApplicantController extends Controller
                     $join->on('applicants.car_id', '=', 'latest.car_id')
                         ->on('applicants.submission_date', '=', 'latest.latest_submission_date');
                 })
-                ->where('status', 'Disetujui')
+                ->where('status', 'Process')
                 ->orderBy('submission_date', 'desc');
             }, 'applicants.user', 'adminCars'])
             ->whereHas('adminCars', function($q) use ($userId) {
@@ -315,13 +315,13 @@ public function accepted($applicant_id)
             ->count();
 
         if ($rejectedCount > 0) {
-            // Set status applicant ke 'Ditolak' jika ada yang menolak
+            // Set status applicant ke 'Rejected' jika ada yang menolak
             Applicant::where('id', $applicant_id)
-                ->update(['status' => 'Ditolak']);
+                ->update(['status' => 'Rejected']);
         } else {
             // Jika semua admin setuju, set status applicant ke 'Disetujui'
             $applicant->update([
-                'status' => 'Disetujui',
+                'status' => 'Process',
                 'accepted_at' => Carbon::now()
             ]);
 
@@ -332,13 +332,13 @@ public function accepted($applicant_id)
             $otherApplicants = Applicant::where('car_id', $applicant->car_id)
                 ->where('id', '!=', $applicant->id) // Pengajuan selain yang disetujui
                 ->where('submission_date', $applicant->submission_date) // Pada tanggal yang sama
-                ->where('status', 'Belum Disetujui')
+                ->where('status', 'Pending')
                 ->get();
 
             foreach ($otherApplicants as $otherApplicant) {
-                // Update status applicant jadi 'Ditolak'
+                // Update status applicant jadi 'Rejected'
                 $otherApplicant->update([
-                    'status' => 'Ditolak',
+                    'status' => 'Rejected',
                 ]);
 
                 // Update status approval untuk setiap admin yang bertanggung jawab jadi 'Rejected'
@@ -397,12 +397,12 @@ public function denied(Request $request, $applicant_id)
         'notes' => $request->input('notes'),
     ]);
 
-    // Update status applicant menjadi 'Ditolak' jika belum ditolak
-    if ($applicant->status !== 'Ditolak') {
-        $applicant->update(['status' => 'Ditolak']);
+    // Update status applicant menjadi 'Rejected' jika belum Rejected
+    if ($applicant->status !== 'Rejected') {
+        $applicant->update(['status' => 'Rejected']);
     }
 
-    return response()->json(['message' => 'Aplikasi berhasil ditolak!'], 200);
+    return response()->json(['message' => 'Aplikasi berhasil Rejected!'], 200);
 }
 
 }
