@@ -75,14 +75,24 @@ class ApplicantController extends Controller
                 $borrower = $lastApplicant ? $lastApplicant->user->FirstName . ' ' . $lastApplicant->user->LastName : 'Tidak Ada';
                 $expiry = $lastApplicant ? $lastApplicant->expiry_date : 'Tidak Ada';
     
-                $datacar[] = [
-                    'id' => $car->id,
-                    'name' => $car->name_car,
-                    'status_name' => $car->status,
-                    'borrowed_by' => $borrower,
-                    'expiry_date' => $expiry,
-                    'path' => $car->path ? env('APP_URL') . 'uploads/profiles/' . $car->path : null,
-                ];
+                if ($car->status == "In Use") {
+                    $datacar[] = [
+                        'id' => $car->id,
+                        'name' => $car->name_car,
+                        'status_name' => $car->status,
+                        'borrowed_by' => $borrower,
+                        'expiry_date' => $expiry,
+                        'path' => $car->path ? env('APP_URL') . 'uploads/profiles/' . $car->path : null,
+                    ];
+                } else {
+                    $datacar[] = [
+                        'car_id' => $car->id,
+                        'name' => $car->name_car,
+                        'status_name' => $car->status,
+                        'borrowed_by' => "Tidak Ada",
+                        'path' => $car->path ? env('APP_URL') . 'uploads/profiles/' . $car->path : null,
+                    ];
+                }
             }
     
             $applicantsData = $applicants->getCollection()->transform(function ($applicant) {

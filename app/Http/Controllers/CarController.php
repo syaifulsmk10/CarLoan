@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminCar;
+use App\Models\Applicant;
 use Illuminate\Http\Request;
 use App\Models\Car;
 use App\Models\User;
@@ -166,6 +167,13 @@ class CarController extends Controller
         // Perbarui informasi mobil jika ada
         if ($request->has('status')) {
             $Car->status = $request->status;
+
+            // Jika status mobil menjadi 'Available', ubah status pengajuan menjadi 'completed'
+            if ($request->status === 'Available') {
+                Applicant::where('car_id', $Car->id)
+                    ->where('status', 'Process') // Hanya pengajuan yang statusnya 'Process' yang diubah
+                    ->update(['status' => 'completed']);
+            }
         }
 
         if ($request->has('name_car')) {
