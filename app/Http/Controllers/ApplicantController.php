@@ -216,81 +216,100 @@ class ApplicantController extends Controller
      * Show the form for editing the specified resource.
      */
     public function updateApplicant(Request $request, $id)
-    {   
+{   
+    if (Auth::user()->role->id == 2) {
+        $validator = Validator::make($request->all(), [
+            'car_id' => 'sometimes|exists:cars,id',
+            'purpose' => 'sometimes|string|max:255',
+            'submission_date' => 'sometimes|date_format:Y-m-d\TH:i:s',
+            'expiry_date' => 'sometimes|date_format:Y-m-d\TH:i:s|after_or_equal:today',
+        ]);
 
-        if(Auth::user()->role->id == 2){
-            $validator = Validator::make($request->all(), [
-                'car_id' => 'sometimes|exists:cars,id', 
-                'purpose' => 'sometimes|string|max:255', 
-                'submission_date' => 'sometimes|date_format:Y-m-d\TH:i:s', // Memastikan submission_date adalah format tanggal yang valid jika diisi
-                'expiry_date' => 'sometimes|date_format:Y-m-d\TH:i:s|after_or_equal:today', // Memastikan expiry_date adalah tanggal valid dan setelah submission_date jika diisi
-            ]);
-        
-            // Jika validasi gagal, kembalikan respon error
-            if ($validator->fails()) {
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $applicant = Applicant::where('user_id', Auth::user()->id)
+            ->where('id', $id)
+            ->where('status', 'Pending')
+            ->first();
+
+        if (!$applicant) {
+            return response()->json([
+                'message' => 'Applicant not found.'
+            ], 404);
+        }
+
+        $oldCar = Car::find($applicant->car_id);
+        $newCar = Car::where('id', $request->car_id)->first();
+
+        if ($request->has('car_id')) {
+
+            if ($applicant->status == "Pending" && $newCar->status == 'In Use') {
                 return response()->json([
-                    'errors' => $validator->errors()
-                ], 422);
+                    "message" => "Car In use"
+                ]);
             }
-        
-                $applicant = Applicant::where('user_id', Auth::user()->id)->where('id', $id)->where('status', 'Pending')->first();
-        
-                if (!$applicant) {
-                    return response()->json([
-                        'message' => 'Applicant not found.'
-                    ], 404);
-                }
-                $oldCar = Car::find($applicant->car_id);
-                $newCar = Car::where('id', $request->car_id)->first();
-              
-            
-                if ($request->has('car_id')) {
 
-                    if ($applicant->status == "Pending" &&  $newCar->status == 'In Use') {
-                        return response()->json([
-                            "message" => "Car In use"
+            if ($applicant->status == "Pending" && ($newCar->status == 'Available' || $oldCar->status == 'Pending')) {
+                if (!$newCar) {
+                    return response()->json(['message' => 'New car status invalid.'], 400);
+                }
+
+                if ($applicant->car_id != $request->car_id) {
+                    // Ubah status mobil lama menjadi 'Available'
+                    if ($oldCar) {
+                        $oldCar->status = 'Available';
+                        $oldCar->save();
+                    }
+
+                    // Ubah status mobil baru menjadi 'Pending'
+                    $newCar->status = 'Pending';
+                    $newCar->save();
+
+                    // Update car_id di applicant
+                    $applicant->car_id = $request->car_id;
+
+                    // Hapus data approval lama
+                    AdminApplicantApproval::where('applicant_id', $applicant->id)->delete();
+
+                    // Tambahkan approval baru berdasarkan admin mobil baru
+                    $admins = AdminCar::where('car_id', $request->car_id)->get();
+                    foreach ($admins as $admin) {
+                        AdminApplicantApproval::create([
+                            'user_id' => $admin->user_id,
+                            'applicant_id' => $applicant->id,
+                            'approval_status' => 'Pending',
                         ]);
                     }
-                    if ($applicant->status == "Pending" && ($newCar->status == 'Available' || $oldCar->status == 'Pending')) {
-                        if (!$newCar) {
-                            return response()->json(['message' => 'New car status invalid.'], 400);
-                        }
-                        if ($applicant->car_id == $request->car_id) {
-                            $newCar->status = 'Pending';
-                            $newCar->save();
-                        } else {
-                            $newCar->status = 'Pending';
-                            $newCar->save();
-                            if ($oldCar) {
-                                $oldCar->status = 'Available';
-                                $oldCar->save();
-                            }
-                            $applicant->car_id = $request->car_id;
-                        }
-                    }      
-                } 
-                if ($request->has('purpose')) {
-                    $applicant->purpose = $request->purpose;
                 }
-        
-                if ($request->has('submission_date')) {
-                    $applicant->submission_date = $request->submission_date;
-                }
-        
-                if ($request->has('expiry_date')) {
-                    $applicant->expiry_date = $request->expiry_date;
-                }
-                $applicant->save();
-        
-                return response()->json(['message' => 'Applicant updated successfully.']);
-        }else{
-            return response()->json([
-                "message" => "Your Login Not user"
-            ]);
+            }
         }
-       
+
+        if ($request->has('purpose')) {
+            $applicant->purpose = $request->purpose;
+        }
+
+        if ($request->has('submission_date')) {
+            $applicant->submission_date = $request->submission_date;
+        }
+
+        if ($request->has('expiry_date')) {
+            $applicant->expiry_date = $request->expiry_date;
+        }
+
+        $applicant->save();
+
+        return response()->json(['message' => 'Applicant updated successfully.']);
+    } else {
+        return response()->json([
+            "message" => "Your Login Not user"
+        ]);
     }
-    
+}
+
 
     /**
      * Update the specified resource in storage.

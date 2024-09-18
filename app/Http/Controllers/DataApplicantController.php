@@ -402,6 +402,13 @@ public function denied(Request $request, $applicant_id)
         $applicant->update(['status' => 'Rejected']);
     }
 
+    $car = Car::findOrFail($applicant->car_id);
+
+    // Ubah status mobil menjadi 'Available' setelah aplikasi ditolak
+    if ($car->status !== 'Available') {
+        $car->update(['status' => 'Available']);
+    }
+
     return response()->json(['message' => 'Aplikasi berhasil Rejected!'], 200);
 }
 
