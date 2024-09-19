@@ -378,6 +378,79 @@ class UserController extends Controller
             }
            
         }
+
+
+        
+
+    public function updateadmin(Request $request, $id) {
+
+        if(Auth::user()->role->id == 1){
+            $user = User::where('id',$id)->where('role_id', 1)->first();
+        
+            if (!$user) {
+                return response()->json([
+                    'message' => 'User not found',
+                ], 404);
+            }
+        
+            // Validate request data
+            $validator = Validator::make($request->all(), [
+                'FirstName' => 'sometimes|string|max:255',
+                'LastName' => 'sometimes|string|max:255',
+                'email' => 'sometimes|email|max:255|unique:users,email,' . $id,
+                'password' => 'sometimes|string|min:8|confirmed',
+                'path' => 'nullable|file|image|max:2048' // Validation for single image
+            ]);
+        
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'Validation Error',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+        
+            // Update user data
+            if ($request->FirstName) {
+                $user->FirstName = $request->FirstName;
+            }
+        
+            if ($request->LastName) {
+                $user->LastName = $request->LastName;
+            }
+        
+            if ($request->email) {
+                $user->email = $request->email;
+            }
+        
+            if ($request->password) {
+                $user->password = Hash::make($request->password);
+            }
+
+        
+    
+            if ($request->hasFile('path')) {
+                $image = $request->file('path');
+                $imageName = 'VA' . Str::random(40) . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/profiles'), $imageName);
+                $imagePath = $imageName; 
+        
+        
+                $user->path = $imagePath;
+            }
+        
+            $user->save();
+        
+            return response()->json([
+                'message' => 'User updated successfully',
+            ], 200);
+        }else{
+            return response()->json([
+                "message" => "Your Login Not Admin"
+            ]);
+        }
+      
+    }
+
        
     
 }

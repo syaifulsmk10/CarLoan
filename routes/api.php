@@ -70,6 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/users', [UserController::class, 'getAllUser']);  //done
 Route::get('/users/detail/{id}', [UserController::class, 'getUser']); //detail && get input done
 Route::post('/users/create', [UserController::class, 'addUser']); //done
+Route::post('/users/update/admin/{id}', [UserController::class, 'updateadmin']); //done//done
 Route::post('/users/update/{id}', [UserController::class, 'updateUser']); //done//done
 Route::delete('/users/delete/{id}', [UserController::class, 'deleteUser']); //done
 
