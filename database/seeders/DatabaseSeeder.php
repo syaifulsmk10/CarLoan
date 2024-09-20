@@ -36,29 +36,47 @@ class DatabaseSeeder extends Seeder
 
     // Admin
     User::create([
-        'FirstName' => 'admin',
-        'LastName' => 'Doe',
-        "email" => "admin@admin.com",
-        "password" => bcrypt("admin_password"),
+        'FirstName' => 'Pak',
+        'LastName' => 'Gandi',
+        "email" => "Gandi@intiva.id",
+        "password" => bcrypt("aselole123"),
         "role_id" => 1, // Menggunakan role_id
         "path" => "https://media.istockphoto.com/id/493855843/photo/sleepy-ocelot-close-up.webp?a=1&b=1&s=612x612&w=0&k=20&c=llA_ImCMavNJJisPzjK8-3FYrqtRk9EDr2qaDeBRC3s="
     ]);
 
     User::create([
-        'FirstName' => 'admin',
-        'LastName' => 'Dani',
-        "email" => "admin@dani.com",
-        "password" => bcrypt("dani_password"),
+        'FirstName' => 'Pak',
+        'LastName' => 'Adit',
+        "email" => "Adit@intiva.id",
+        "password" => bcrypt("aselole123"),
+        "role_id" => 1, // Menggunakan role_id
+        "path" => "https://media.istockphoto.com/id/493855843/photo/sleepy-ocelot-close-up.webp?a=1&b=1&s=612x612&w=0&k=20&c=llA_ImCMavNJJisPzjK8-3FYrqtRk9EDr2qaDeBRC3s="
+    ]);
+
+    User::create([
+        'FirstName' => 'Pak',
+        'LastName' => 'Elfin',
+        "email" => "Elfin@intiva.id",
+        "password" => bcrypt("aselole123"),
         "role_id" => 1, // Menggunakan role_id
         "path" => "https://media.istockphoto.com/id/493855843/photo/sleepy-ocelot-close-up.webp?a=1&b=1&s=612x612&w=0&k=20&c=llA_ImCMavNJJisPzjK8-3FYrqtRk9EDr2qaDeBRC3s="
     ]);
 
     // Siswa
     User::create([
-        'FirstName' => 'user',
-        'LastName' => 'Doe',
-         "email" => "user@user.com",
-        "password" => bcrypt("user_password"),
+        'FirstName' => 'Syaiful',
+        'LastName' => 'Nazar',
+         "email" => "Syaiful@nazar.com",
+        "password" => bcrypt("aselole123"),
+        "role_id" => 2, // Menggunakan role_id
+        "path" => "user.png"
+    ]);
+
+    User::create([
+        'FirstName' => 'Nadiyah',
+        'LastName' => 'Atikah',
+         "email" => "Nadiyah@atikah.com",
+        "password" => bcrypt("aselole123"),
         "role_id" => 2, // Menggunakan role_id
         "path" => "user.png"
     ]);
