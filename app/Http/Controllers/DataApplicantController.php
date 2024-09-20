@@ -410,6 +410,56 @@ public function denied(Request $request, $applicant_id)
     }
 
     return response()->json(['message' => 'Aplikasi berhasil Rejected!'], 200);
+
+
+}
+public function completed($applicant_id)
+{
+    $userId = Auth::user()->id; // Bisa juga pakai auth()->id()
+
+    // Dapatkan record applicant
+    $applicant = Applicant::findOrFail($applicant_id);
+
+    // Cek apakah admin ini bertanggung jawab atas mobil yang diminta
+    $isAdminOfCar = AdminCar::where('car_id', $applicant->car_id)
+                            ->where('user_id', $userId)
+                            ->exists();
+
+    if (!$isAdminOfCar) {
+        return response()->json(['message' => 'Anda tidak memiliki hak untuk menyelesaikan aplikasi ini karena Anda bukan admin mobil ini.'], 403);
+    }
+
+    // Dapatkan record approval yang sesuai berdasarkan admin yang login
+    $approval = AdminApplicantApproval::where('user_id', $userId)
+        ->where('applicant_id', $applicant_id)
+        ->first();
+
+    if (!$approval) {
+        return response()->json(['message' => 'Anda tidak memiliki hak untuk menyelesaikan aplikasi ini.'], 403);
+    }
+
+    // Cek apakah admin ini sudah memberikan keputusan sebelumnya
+    if ($approval->approval_status !== 'Approved') {
+        return response()->json(['message' => 'Aplikasi ini belum dapat diselesaikan karena statusnya belum "Approved".'], 403);
+    }
+
+    // Update status approval dari admin menjadi "Completed"
+    $approval->update([
+        'approval_status' => 'Completed',
+    ]);
+
+    // Update status applicant menjadi "Completed"
+    if ($applicant->status !== 'Finished') {
+        $applicant->update(['status' => 'Finished']);
+    }
+
+    // Ubah status mobil menjadi "Available" setelah aplikasi selesai
+    $car = Car::findOrFail($applicant->car_id);
+    if ($car->status !== 'Available') {
+        $car->update(['status' => 'Available']);
+    }
+
+    return response()->json(['message' => 'Aplikasi berhasil diselesaikan!'], 200);
 }
 
 }

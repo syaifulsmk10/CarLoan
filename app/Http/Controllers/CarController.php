@@ -168,11 +168,11 @@ class CarController extends Controller
         if ($request->has('status')) {
             $Car->status = $request->status;
 
-            // Jika status mobil menjadi 'Available', ubah status pengajuan menjadi 'completed'
+            // Jika status mobil menjadi 'Available', ubah status pengajuan menjadi 'Finished'
             if ($request->status === 'Available') {
                 Applicant::where('car_id', $Car->id)
                     ->where('status', 'Process') // Hanya pengajuan yang statusnya 'Process' yang diubah
-                    ->update(['status' => 'completed']);
+                    ->update(['status' => 'Finished']);
             }
         }
 

@@ -93,6 +93,7 @@ Route::get('/Applicant/detail/{id}', [ApplicantController::class, 'detail'])->na
 
 Route::get('/data/applicants', [DataApplicantController::class, 'index'])->name('index'); //done
 Route::post('/Applicant/accepted/{id}', [DataApplicantController::class, 'accepted'])->name('accepted'); //done
+Route::post('/Applicant/completed/{id}', [DataApplicantController::class, 'completed'])->name('completed'); //done
 Route::post('/Applicant/denied/{id}', [DataApplicantController::class, 'denied'])->name('denied'); //done
 Route::get('/data/applicants/{id}', [DataApplicantController::class, 'detailApplicant'])->name('detailApplicant'); //done
 

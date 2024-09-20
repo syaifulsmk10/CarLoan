@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Admin adalah user
             $table->foreignId('applicant_id')->constrained()->onDelete('cascade');
-            $table->enum('approval_status', ['Pending', 'Approved', 'Rejected'])->default('Pending');
+            $table->enum('approval_status', ['Pending', 'Approved', 'Rejected', 'Completed'])->default('Pending');
             $table->text('notes')->nullable();
             $table->timestamps();
         });
