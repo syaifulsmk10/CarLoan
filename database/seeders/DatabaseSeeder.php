@@ -46,7 +46,7 @@ class DatabaseSeeder extends Seeder
 
     User::create([
         'FirstName' => 'Pak',
-        'LastName' => 'Adit',
+        'LastName' => 'Adhyt',
         "email" => "Adit@intiva.id",
         "password" => bcrypt("aselole123"),
         "role_id" => 1, // Menggunakan role_id
